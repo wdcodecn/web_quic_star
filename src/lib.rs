@@ -60,15 +60,15 @@ pub fn get_auth_layer(
 }
 
 pub fn set_env() {
-    let profile = get_build_profile_name();
-    tracing::info!("profile :{} is active", profile);
-    match profile.as_str() {
-        "release" => {
-            dotenvy::from_filename("env_prod.env").ok();
-        }
-        _ => {
-            dotenvy::from_filename(".env").ok();
-        }
+    #[cfg(feature = "dev")]
+    {
+        tracing::info!("profile :{} is active", "dev");
+        dotenvy::from_filename("env_prod.env").ok();
+    }
+    #[cfg(not(feature = "dev"))]
+    {
+        tracing::info!("profile :{} is active", "dev");
+        dotenvy::from_filename("env_prod.env").ok();
     }
 }
 
@@ -84,12 +84,4 @@ pub fn get_connection_pool() -> Pool<ConnectionManager<PgConnection>> {
         .expect("Could not build connection pool")
 }
 
-pub fn get_build_profile_name() -> String {
-    // The profile name is always the 3rd last part of the path (with 1 based indexing).
-    // e.g. /code/core/target/cli/build/my-build-info-9f91ba6f99d7a061/out
-    std::env!("OUT_DIR")
-        .split(std::path::MAIN_SEPARATOR)
-        .nth_back(3)
-        .unwrap_or_else(|| "unknown")
-        .to_string()
-}
+

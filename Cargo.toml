@@ -6,6 +6,7 @@ edition = "2021"
 [features]
 default = ["wallet_auth"]
 wallet_auth = []
+dev=[]
 
 [dependencies]
 axum = { version = "^0.7.0", features = ["macros"] }

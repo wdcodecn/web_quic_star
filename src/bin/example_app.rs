@@ -47,7 +47,9 @@ async fn main() {
         .fallback(fallback)
         .with_state(connection_pool.clone())
         .layer(get_auth_layer(connection_pool.clone()));
-    println!("Example docs are accessible at http://127.0.0.1:5090/docs");
+
+    #[cfg(feature = "dev")]
+    println!("Api docs are accessible at http://127.0.0.1:5090/docs");
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind(format!(
