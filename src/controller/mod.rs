@@ -3,11 +3,46 @@ pub mod group_permission;
 pub mod permission;
 pub mod user;
 
+use aide::OperationIo;
+use alloy::primitives::Address;
 use diesel::QueryableByName;
+use schemars::gen::SchemaGenerator;
+use schemars::schema::{InstanceType, Schema, SchemaObject};
 use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
+use std::str::FromStr;
 
 const LOGIN_URL: &str = "/auth/login";
+
+#[derive(OperationIo, Default, Debug)]
+pub struct AddressStr(Address);
+
+impl JsonSchema for AddressStr {
+    fn schema_name() -> String {
+        "PubKey".to_owned()
+    }
+
+    fn json_schema(gen: &mut SchemaGenerator) -> Schema {
+        SchemaObject {
+            instance_type: Some(InstanceType::String.into()),
+            ..Default::default()
+        }
+        .into()
+    }
+}
+impl<'de> Deserialize<'de> for AddressStr {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        use serde::de::Error;
+        String::deserialize(deserializer)
+            .and_then(|string| {
+                Address::from_str(&string).map_err(|err| Error::custom(err.to_string()))
+            })
+            .and_then(|opt| Ok(AddressStr { 0: opt }))
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(default)]

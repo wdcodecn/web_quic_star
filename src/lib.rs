@@ -67,7 +67,7 @@ pub fn set_env() {
     }
     #[cfg(not(feature = "dev"))]
     {
-        tracing::info!("profile :{} is active", "dev");
+        tracing::info!("profile :{} is active", "release");
         dotenvy::from_filename("env_prod.env").ok();
     }
 }
@@ -83,5 +83,3 @@ pub fn get_connection_pool() -> Pool<ConnectionManager<PgConnection>> {
         .build(manager)
         .expect("Could not build connection pool")
 }
-
-
