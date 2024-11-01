@@ -9,17 +9,17 @@ use diesel::QueryableByName;
 use schemars::gen::SchemaGenerator;
 use schemars::schema::{InstanceType, Schema, SchemaObject};
 use schemars::JsonSchema;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
 
 const LOGIN_URL: &str = "/auth/login";
 
-#[derive(OperationIo, Default, Debug)]
-pub struct AddressStr(Address);
+#[derive(OperationIo, Default, Debug, Serialize, Deserialize, Clone)]
+pub struct AddrStr(pub(crate) Address);
 
-impl JsonSchema for AddressStr {
+impl JsonSchema for AddrStr {
     fn schema_name() -> String {
-        "PubKey".to_owned()
+        "SolanaAddr".to_owned()
     }
 
     fn json_schema(gen: &mut SchemaGenerator) -> Schema {
@@ -28,19 +28,6 @@ impl JsonSchema for AddressStr {
             ..Default::default()
         }
         .into()
-    }
-}
-impl<'de> Deserialize<'de> for AddressStr {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        use serde::de::Error;
-        String::deserialize(deserializer)
-            .and_then(|string| {
-                Address::from_str(&string).map_err(|err| Error::custom(err.to_string()))
-            })
-            .and_then(|opt| Ok(AddressStr { 0: opt }))
     }
 }
 
@@ -52,11 +39,6 @@ pub struct PageParam<T: Default> {
     pub page_size: i64,
     pub order_column: String,
     pub is_desc: bool,
-}
-#[derive(QueryableByName)]
-pub struct Count {
-    #[sql_type = "diesel::sql_types::BigInt"]
-    pub count: i64,
 }
 
 impl<T: Default> Default for PageParam<T> {
@@ -71,14 +53,15 @@ impl<T: Default> Default for PageParam<T> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
-#[serde(default)]
-pub struct PageRes<T: Default, TBuilder: Default> {
-    pub page_no: i64,
-    pub page_size: i64,
-    pub records: Vec<T>,
-    pub total_page: i64,
-    pub filters: TBuilder,
+impl<T: Default> PageParam<T> {
+    pub fn get_offset_limit(&self) -> (i64, i64) {
+        ((self.page_no - 1) * self.page_size, self.page_size)
+    }
+}
+#[derive(QueryableByName)]
+pub struct Count {
+    #[sql_type = "diesel::sql_types::BigInt"]
+    pub count: i64,
 }
 
 #[derive(Deserialize, Serialize, JsonSchema, Clone, Default)]
@@ -90,12 +73,6 @@ pub enum Compare {
     GreaterAndEqual,
     Less,
     LessAndEqual,
-}
-
-#[derive(Deserialize, Serialize, JsonSchema, Clone, Default)]
-pub struct Filter<T> {
-    pub compare: Compare,
-    pub compare_value: T,
 }
 
 impl Compare {
@@ -110,6 +87,22 @@ impl Compare {
         }
         .to_string()
     }
+}
+
+#[derive(Deserialize, Serialize, JsonSchema, Clone, Default)]
+pub struct Filter<T> {
+    pub compare: Compare,
+    pub compare_value: T,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
+#[serde(default)]
+pub struct PageRes<T: Default, TBuilder: Default> {
+    pub page_no: i64,
+    pub page_size: i64,
+    pub records: Vec<T>,
+    pub total_page: i64,
+    pub filters: TBuilder,
 }
 
 impl<T: Default, TBuilder: Default> PageRes<T, TBuilder> {
@@ -144,12 +137,6 @@ impl<T: Default, TBuilder: Default> PageRes<T, TBuilder> {
                 filters: param.filters,
             }
         }
-    }
-}
-
-impl<T: Default> PageParam<T> {
-    pub fn get_offset_limit(&self) -> (i64, i64) {
-        ((self.page_no - 1) * self.page_size, self.page_size)
     }
 }
 

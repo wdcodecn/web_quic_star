@@ -1,6 +1,7 @@
 use crate::api_doc::errors::AppError;
 use crate::controller::permission::Permission;
 use crate::controller::user::{NewUser, User};
+use crate::controller::AddrStr;
 use crate::schema::groups::dsl::groups;
 use crate::schema::groups_permissions::dsl::groups_permissions;
 use crate::schema::groups_permissions::{group_id, permission_id};
@@ -50,7 +51,7 @@ pub struct Credentials {
 #[cfg(feature = "wallet_auth")]
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct Credentials {
-    pub user_addr: String,
+    pub user_addr: AddrStr,
     pub signature: String,
     pub next: Option<String>,
 }
@@ -111,7 +112,7 @@ impl AuthnBackend for AuthBackend {
     ) -> Result<Option<Self::User>, Self::Error> {
         let signature = Signature::from_str(&creds.signature)?;
         let recovered_addr = signature.recover_address_from_msg(LOGIN_MESSAGE)?;
-        let user_addr = Address::from_hex(creds.user_addr.as_str())?;
+        let user_addr = creds.user_addr.0;
 
         assert_eq!(recovered_addr, user_addr, "not equal ");
 
