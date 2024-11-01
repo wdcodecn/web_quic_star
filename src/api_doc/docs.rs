@@ -32,7 +32,6 @@ pub fn docs_routes() -> ApiRouter {
     router
 }
 #[cfg(feature = "dev")]
-
 pub fn docs_routes() -> ApiRouter {
     // We infer the return types for these routes
     // as an example.
@@ -43,27 +42,27 @@ pub fn docs_routes() -> ApiRouter {
     aide::gen::infer_responses(true);
 
     let router: ApiRouter = ApiRouter::new()
-      .api_route_with(
-          "/",
-          get_with(
-              Scalar::new("/docs/private/api.json")
-                .with_title("Aide Axum")
-                .axum_handler(),
-              |op| op.description("This documentation page."),
-          ),
-          |p| p.security_requirement("ApiKey"),
-      )
-      .api_route_with(
-          "/redoc",
-          get_with(
-              Redoc::new("/docs/private/api.json")
-                .with_title("Aide Axum")
-                .axum_handler(),
-              |op| op.description("This documentation page."),
-          ),
-          |p| p.security_requirement("ApiKey"),
-      )
-      .route("/private/api.json", get(serve_docs));
+        .api_route_with(
+            "/",
+            get_with(
+                Scalar::new("/docs/private/api.json")
+                    .with_title("Aide Axum")
+                    .axum_handler(),
+                |op| op.description("This documentation page."),
+            ),
+            |p| p.security_requirement("ApiKey"),
+        )
+        .api_route_with(
+            "/redoc",
+            get_with(
+                Redoc::new("/docs/private/api.json")
+                    .with_title("Aide Axum")
+                    .axum_handler(),
+                |op| op.description("This documentation page."),
+            ),
+            |p| p.security_requirement("ApiKey"),
+        )
+        .route("/private/api.json", get(serve_docs));
     // .with_state(state);
 
     // Afterwards we disable response inference because

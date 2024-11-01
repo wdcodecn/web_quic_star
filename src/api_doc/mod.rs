@@ -70,8 +70,13 @@ macro_rules! impl_from {
     ($error:path) => {
         impl From<$error> for AppError {
             fn from(value: $error) -> Self {
+                let backtrace = std::backtrace::Backtrace::capture();
+                tracing::error!(
+                    "error occurred: position: {:?} ; error:{value}",
+                    backtrace.frames()[4]
+                );
                 AppError {
-                    error: format!("error:::::::: {}", value),
+                    error: format!("error: {}", value),
                     error_id: Default::default(),
                     status: Default::default(),
                     error_details: None,
@@ -83,6 +88,13 @@ macro_rules! impl_from {
         #[allow(unused)]
         impl From<$error> for AppError {
             fn from(value: $error) -> Self {
+                let backtrace = std::backtrace::Backtrace::capture();
+                tracing::error!(
+                    "error occurred: position: {:?} ; error:{value}",
+                    backtrace.frames()[4]
+                );
+                use tracing::error;
+                error!("{}", value);
                 AppError {
                     error: format!("error:::::::: {}", $message),
                     error_id: Default::default(),

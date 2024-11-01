@@ -28,12 +28,12 @@ use std::string::ToString;
 use std::time::SystemTime;
 
 const LOGIN_MESSAGE: &str = "welcome";
-const DEFAULT_TENANTRY: &str = "default";
+pub const DEFAULT_TENANTRY: &str = "default";
 
-const COMMON_USER_ROLE: i64 = -1;
-const COMMON_USER: i64 = -1;
-const SUPER_USER_ROLE: i64 = -2;
-const SUPER_USER: i64 = -2;
+pub const COMMON_USER_ROLE: i64 = -1;
+pub const COMMON_USER: i64 = -1;
+pub const SUPER_USER_ROLE: i64 = -2;
+pub const SUPER_USER: i64 = -2;
 
 #[derive(Debug, Clone)]
 pub struct AuthBackend {
