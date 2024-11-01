@@ -12,13 +12,13 @@ use tokio_cron_scheduler::{Job, JobScheduler};
 
 pub mod api_auth;
 pub mod api_doc;
+pub mod api_wrapper;
 pub mod contracts;
 pub mod controller;
 pub mod domain;
 pub mod models;
 pub mod scheduled_task;
 pub mod schema;
-pub mod third_party_api;
 
 pub static GLOBAL_CONNECTION_POOL: OnceLock<Pool<ConnectionManager<PgConnection>>> =
     OnceLock::new();
@@ -82,4 +82,14 @@ pub fn get_connection_pool() -> Pool<ConnectionManager<PgConnection>> {
         .test_on_check_out(true)
         .build(manager)
         .expect("Could not build connection pool")
+}
+
+pub fn set_log() {
+    tracing_subscriber::fmt()
+        .event_format(
+            tracing_subscriber::fmt::format()
+                .with_file(true)
+                .with_line_number(true),
+        )
+        .init();
 }

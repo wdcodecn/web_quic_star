@@ -13,7 +13,7 @@ axum = { version = "^0.7.0", features = ["macros"] }
 axum-extra = "0.9.3"
 axum-macros = "0.4.1"
 
-axum-login = { path = "axum-login" }
+axum-login = { path = "crates/axum-login" }
 
 aide = { version = "0.13.4", features = ["redoc", "scalar", "axum", "axum-extra", "macros", "axum-headers"] }
 axum-jsonschema = { version = "0.8.0", features = ["aide"] }
@@ -50,7 +50,7 @@ futures = "0.3.31"
 
 password-auth = "1.0.0"
 tokio-cron-scheduler = { version = "0.13.0",features = [] }
-derive_builder = {path = "derive_macro/derive_builder"}
+derive_builder = {path = "crates/derive_builder" }
 #paste = "1.0.15"
 [build-dependencies]
 #vergen = { version = "8.0.0", features = ["build", "cargo", "git", "gitcl"] }
