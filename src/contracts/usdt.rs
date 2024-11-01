@@ -2,7 +2,6 @@ use alloy::hex::FromHex;
 use alloy::primitives::Address;
 use alloy::sol;
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
-use futures_util::StreamExt;
 use std::env;
 use std::str::FromStr;
 
