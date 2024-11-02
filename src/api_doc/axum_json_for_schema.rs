@@ -224,7 +224,6 @@ impl IntoResponse for JsonSchemaRejection {
     }
 }
 
-#[cfg(feature = "aide")]
 mod impl_aide {
     use super::*;
 

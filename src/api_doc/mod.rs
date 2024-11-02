@@ -9,6 +9,7 @@ use uuid::Uuid;
 use crate::api_doc::errors::AppError;
 use crate::api_doc::extractors::Json;
 
+pub mod axum_json_for_schema;
 pub mod docs;
 pub mod errors;
 pub mod extractors;

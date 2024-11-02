@@ -1,5 +1,5 @@
 #![feature(backtrace_frames)]
-
+#![feature(negative_impls)]
 use std::env;
 use std::sync::OnceLock;
 

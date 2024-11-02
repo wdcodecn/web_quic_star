@@ -1,8 +1,8 @@
+use crate::api_doc::axum_json_for_schema::JsonSchemaRejection;
 use crate::impl_from;
 use aide::OperationIo;
 use alloy::eips::eip1898::ParseBlockIdError;
 use axum::{http::StatusCode, response::IntoResponse};
-use axum_jsonschema::JsonSchemaRejection;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};

@@ -13,7 +13,6 @@ axum = { version = "^0.7.0", features = ["macros"] }
 axum-extra = "0.9.4"
 axum-macros = "0.4.2"
 axum-login = { path = "crates/axum-login" }
-axum-jsonschema = { path = "crates/axum-jsonschema", features = ["aide"] }
 aide = { path = "crates/aide", features = ["redoc", "scalar", "axum", "axum-extra", "macros", "axum-headers"] }
 tokio = { version = "1.40.0", features = ["full"] }
 tracing-subscriber = "0.3.18"
@@ -41,5 +40,11 @@ reqwest = "0.12.9"
 futures = "0.3.31"
 tokio-cron-scheduler = { version = "0.13.0",features = [] }
 derive_builder = {path = "crates/derive_builder" }
+async-trait = "0.1.83"
+http = "1.1.0"
+itertools = "0.13.0"
+serde_path_to_error = "0.1.16"
+jsonschema = { version = "0.17.0", default-features = false }
+
 [build-dependencies]
 
