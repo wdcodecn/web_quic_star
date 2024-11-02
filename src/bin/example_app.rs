@@ -1,27 +1,19 @@
 use std::env;
-use std::sync::Arc;
 
 use aide::axum::ApiRouter;
-use aide::openapi::OpenApi;
-use axum::Extension;
 
-use web_quic_star::api_doc::docs::docs_routes;
-use web_quic_star::api_doc::{api_docs, fallback};
+use web_quic_star::api_doc::fallback;
 use web_quic_star::{
     api_auth, controller, get_auth_layer, get_connection_pool, set_api_doc, set_env, set_scheduler,
-    GLOBAL_CONNECTION_POOL,
 };
 
 #[tokio::main]
 async fn main() {
     web_quic_star::set_log();
     set_env();
-    set_api_doc();
 
     let connection_pool = get_connection_pool();
-    GLOBAL_CONNECTION_POOL.get_or_init(|| connection_pool.clone());
     set_scheduler().await;
-    let mut api = OpenApi::default();
 
     let app = ApiRouter::new()
         .nest_api_service("/auth", api_auth::router::router())
@@ -41,12 +33,11 @@ async fn main() {
             "/group_permission",
             crate::controller::group_permission::web_routes(connection_pool.clone()),
         )
-        .nest_api_service("/docs", docs_routes())
-        .finish_api_with(&mut api, api_docs)
-        .layer(Extension(Arc::new(api)))
         .fallback(fallback)
         .with_state(connection_pool.clone())
         .layer(get_auth_layer(connection_pool.clone()));
+
+    let doc_app = set_api_doc(app);
 
     #[cfg(feature = "dev")]
     println!("Api docs are accessible at http://127.0.0.1:5090/docs");
@@ -58,7 +49,7 @@ async fn main() {
     ))
     .await
     .expect("Can not bind to port");
-    axum::serve(listener, app)
+    axum::serve(listener, doc_app)
         .await
         .expect("Can not run server");
 }

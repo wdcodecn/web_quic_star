@@ -1,10 +1,14 @@
 #![feature(backtrace_frames)]
 #![feature(negative_impls)]
-use std::env;
-use std::sync::OnceLock;
-
 use crate::api_auth::login_impl::AuthBackend;
+use axum::{Extension, Router};
+use std::env;
+use std::sync::{Arc, OnceLock};
 
+use crate::api_doc::api_docs;
+use crate::api_doc::docs::docs_routes;
+use aide::axum::ApiRouter;
+use aide::openapi::OpenApi;
 use axum_login::tower_sessions::cookie::time::Duration;
 use axum_login::tower_sessions::{Expiry, MemoryStore, SessionManagerLayer};
 use axum_login::{AuthManagerLayer, AuthManagerLayerBuilder};
@@ -42,11 +46,15 @@ pub async fn set_scheduler() {
     sched.start().await.expect("cannot start jobs scheduler");
 }
 
-pub fn set_api_doc() {
+pub fn set_api_doc(app: ApiRouter) -> Router {
     aide::gen::on_error(|error| {
         println!("{error}");
     });
     aide::gen::extract_schemas(true);
+    let mut api = OpenApi::default();
+    app.nest_api_service("/docs", docs_routes())
+        .finish_api_with(&mut api, api_docs)
+        .layer(Extension(Arc::new(api)))
 }
 
 pub fn get_auth_layer(
@@ -79,11 +87,13 @@ pub fn get_connection_pool() -> Pool<ConnectionManager<PgConnection>> {
     let manager = ConnectionManager::<PgConnection>::new(database_url);
     // Refer to the `r2d2` documentation for more methods to use
     // when building a connection pool
-    Pool::builder()
+    let connection_pool = Pool::builder()
         .max_size(10)
         .test_on_check_out(true)
         .build(manager)
-        .expect("Could not build connection pool")
+        .expect("Could not build connection pool");
+    GLOBAL_CONNECTION_POOL.get_or_init(|| connection_pool.clone());
+    connection_pool
 }
 
 pub fn set_log() {
