@@ -89,8 +89,9 @@ pub fn get_connection_pool() -> Pool<ConnectionManager<PgConnection>> {
 pub fn set_log() {
     tracing_subscriber::fmt()
         .event_format(
-            tracing_subscriber::fmt::format(), // .with_file(true)
-                                               // .with_line_number(true),
+            tracing_subscriber::fmt::format()
+                // .with_file(true)
+                .with_line_number(true),
         )
         .init();
 }
