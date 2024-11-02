@@ -70,15 +70,10 @@ impl From<JsonSchemaRejection> for AppError {
 }
 
 impl<T: Error> From<T> for AppError {
+    #[track_caller]
     fn from(value: T) -> Self {
-        #[cfg(feature = "dev")]
-        {
-            let backtrace = std::backtrace::Backtrace::capture();
-            tracing::error!(
-                "error occurred: position: {:?} ; error:{value}",
-                backtrace.frames()[4]
-            );
-        }
+        let caller_location = std::panic::Location::caller();
+        tracing::error!("Position: {caller_location} ; Error:{value}",);
         AppError {
             error: format!("error: {}", value),
             error_id: Default::default(),

@@ -7,8 +7,8 @@ use web_quic_star::{set_env, set_log};
 fn main() {
     set_env();
     set_log();
-    println!("{:?}", err());
-    println!("{:?}", err());
+    // println!("{:?}", err());
+    // println!("{:?}", err());
 }
 fn err() -> Result<(), AppError> {
     Ok(err2()?)
