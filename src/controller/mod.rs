@@ -236,7 +236,7 @@ impl<T: Default, TBuilder: Default> PageRes<T, TBuilder> {
 //     ($table:ident ,$new:ident, $result:ident) => {
 //         use crate::api_auth::login_impl::AuthBackend;
 //         use crate::controller::LOGIN_URL;
-//         use crate::openapi::{default_resp_docs_with_exam, empty_resp_docs};
+//         use crate::openapi::{default_resp_docs, empty_resp_docs};
 //         use crate::schema::$table::dsl::$table;
 //         use crate::web_fn_gen;
 //         use aide::axum::routing::{delete_with, get_with, post_with, put_with};
@@ -256,16 +256,16 @@ impl<T: Default, TBuilder: Default> PageRes<T, TBuilder> {
 //                 )
 //                 .api_route(
 //                     "/get_entity_by_id/:id",
-//                     get_with(get_entity_by_id, default_resp_docs_with_exam::<$result>),
+//                     get_with(get_entity_by_id, default_resp_docs::<$result>),
 //                     // .delete_with(delete_todo, empty_resp_docs),
 //                 )
 //                 .api_route(
 //                     "/update_entity_by_id/:id",
-//                     put_with(update_entity_by_id, default_resp_docs_with_exam::<$result>),
+//                     put_with(update_entity_by_id, default_resp_docs::<$result>),
 //                 )
 //                 .api_route(
 //                     "/delete_entity_by_id/:id",
-//                     delete_with(delete_entity_by_id, default_resp_docs_with_exam::<$result>),
+//                     delete_with(delete_entity_by_id, default_resp_docs::<$result>),
 //                 )
 //                 .api_route(
 //                     "/get_entity_page",

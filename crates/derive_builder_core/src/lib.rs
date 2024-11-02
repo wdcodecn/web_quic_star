@@ -116,7 +116,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
     let f = quote!(
         use crate::api_auth::login_impl::AuthBackend;
         use crate::controller::LOGIN_URL;
-        use crate::api_doc::{default_resp_docs_with_exam, empty_resp_docs};
+        use crate::api_doc::{default_resp_docs, empty_resp_docs};
         use crate::schema::#schema::dsl::#schema;
         use aide::axum::routing::{delete_with, get_with, post_with, put_with};
         use aide::axum::ApiRouter;
@@ -136,7 +136,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
                     "/get_entity_by_id/:id",
                     get_with(
                         web::get_entity_by_id,
-                        default_resp_docs_with_exam::<#model>,
+                        default_resp_docs::<#model>,
                     ),
                 )
                 .api_route(
@@ -147,14 +147,14 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
                 "/update_entity_by_id/:id",
                 put_with(
                     web::update_entity_by_id,
-                    default_resp_docs_with_exam::<#model>,
+                    default_resp_docs::<#model>,
                 ),
             );
             let router_delete = ApiRouter::new().api_route(
                 "/delete_entity_by_id/:id",
                 delete_with(
                     web::delete_entity_by_id,
-                    default_resp_docs_with_exam::<#model>,
+                    default_resp_docs::<#model>,
                 ),
             );
             router_add

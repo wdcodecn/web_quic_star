@@ -2,10 +2,12 @@ use crate::api_doc::axum_json_for_schema::JsonSchemaRejection;
 use aide::OperationIo;
 use axum::{http::StatusCode, response::IntoResponse};
 use schemars::JsonSchema;
+use serde::de::StdError;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
+use std::ops::Deref;
 use uuid::Uuid;
 /// A default error response for most API errors.
 #[derive(Debug, Serialize, JsonSchema, Deserialize, OperationIo)]
@@ -21,6 +23,14 @@ pub struct AppError {
     pub error_details: Option<Value>,
 }
 
+// impl Deref for AppError {
+//     type Target = dyn StdError + Send + Sync + 'static;
+//
+//     fn deref(&self) -> &Self::Target {
+//         unsafe { ErrorImpl::error(self.inner.by_ref()) }
+//     }
+// }
+
 impl Display for AppError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "(+error:{}, +error_id:{})", self.error, self.error_id)
@@ -35,15 +45,6 @@ impl AppError {
             status: StatusCode::BAD_REQUEST,
             error_details: None,
         }
-    }
-
-    pub fn new_box(error: &str) -> Box<Self> {
-        Box::new(Self {
-            error: error.to_string(),
-            error_id: Uuid::new_v4(),
-            status: StatusCode::BAD_REQUEST,
-            error_details: None,
-        })
     }
 
     pub fn with_status(mut self, status: StatusCode) -> Self {

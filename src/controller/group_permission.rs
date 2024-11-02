@@ -43,7 +43,7 @@ pub struct GroupsPermissionBuilder {
     pub permission_id: ::derive_builder::export::core::option::Option<Filter<i64>>,
 }
 use crate::api_auth::login_impl::AuthBackend;
-use crate::api_doc::{default_resp_docs_with_exam, empty_resp_docs};
+use crate::api_doc::{default_resp_docs, empty_resp_docs};
 use crate::controller::Compare;
 use crate::controller::Filter;
 use crate::controller::LOGIN_URL;
@@ -62,10 +62,7 @@ pub fn web_routes(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRouter
     let router_read = ApiRouter::new()
         .api_route(
             "/get_entity_by_id/:group_id/:permission_id",
-            get_with(
-                web::get_entity_by_id,
-                default_resp_docs_with_exam::<GroupsPermission>,
-            ),
+            get_with(web::get_entity_by_id, default_resp_docs::<GroupsPermission>),
         )
         .api_route(
             "/get_entity_page",
@@ -75,7 +72,7 @@ pub fn web_routes(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRouter
         "/delete_entity_by_id/:group_id/:permission_id",
         delete_with(
             web::delete_entity_by_id,
-            default_resp_docs_with_exam::<GroupsPermission>,
+            default_resp_docs::<GroupsPermission>,
         ),
     );
     router_add
