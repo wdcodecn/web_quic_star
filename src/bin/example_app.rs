@@ -5,16 +5,16 @@ use aide::axum::ApiRouter;
 use aide::openapi::OpenApi;
 use axum::Extension;
 
-use web_quick_start::api_doc::docs::docs_routes;
-use web_quick_start::api_doc::{api_docs, fallback};
-use web_quick_start::{
+use web_quic_star::api_doc::docs::docs_routes;
+use web_quic_star::api_doc::{api_docs, fallback};
+use web_quic_star::{
     api_auth, controller, get_auth_layer, get_connection_pool, set_api_doc, set_env, set_scheduler,
     GLOBAL_CONNECTION_POOL,
 };
 
 #[tokio::main]
 async fn main() {
-    web_quick_start::set_log();
+    web_quic_star::set_log();
     set_env();
     set_api_doc();
 
