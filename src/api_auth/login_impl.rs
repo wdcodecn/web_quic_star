@@ -2,6 +2,7 @@ use crate::api_doc::errors::AppError;
 use crate::controller::permission::Permission;
 use crate::controller::user::{NewUser, User};
 use crate::controller::AddrStr;
+use crate::impl_from;
 use crate::schema::groups::dsl::groups;
 use crate::schema::groups_permissions::dsl::groups_permissions;
 use crate::schema::groups_permissions::{group_id, permission_id};
@@ -22,7 +23,7 @@ use password_auth::verify_password;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use std::collections::HashSet;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 use std::string::ToString;
 use std::time::SystemTime;
@@ -77,11 +78,28 @@ impl AuthBackend {
     }
 }
 
+#[derive(Debug)]
+pub struct AuthError(AppError);
+impl_from!(diesel::result::Error);
+impl_from!(r2d2::Error);
+// impl_from!(alloy::hex::FromHexError, "address format error");
+impl_from!(alloy::primitives::SignatureError);
+impl std::error::Error for AuthError {}
+impl Display for AuthError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "(+error:{}, +error_id:{})",
+            self.0.error, self.0.error_id
+        )
+    }
+}
+
 #[async_trait]
 impl AuthnBackend for AuthBackend {
     type User = User;
     type Credentials = Credentials;
-    type Error = AppError;
+    type Error = AuthError;
 
     #[cfg(not(feature = "wallet_auth"))]
     async fn authenticate(

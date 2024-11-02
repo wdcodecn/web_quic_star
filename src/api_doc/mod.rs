@@ -69,7 +69,7 @@ pub async fn fallback(uri: Uri) -> (StatusCode, String) {
 #[macro_export]
 macro_rules! impl_from {
     ($error:path) => {
-        impl From<$error> for AppError {
+        impl From<$error> for AuthError {
             fn from(value: $error) -> Self {
                 #[cfg(feature = "dev")]
                 {
@@ -79,18 +79,18 @@ macro_rules! impl_from {
                         backtrace.frames()[4]
                     );
                 }
-                AppError {
-                    error: format!("error: {}", value),
+                AuthError(AppError {
+                    error: format!("error:::::::: {}", value),
                     error_id: Default::default(),
                     status: Default::default(),
                     error_details: None,
-                }
+                })
             }
         }
     };
     ($error:path,$message:literal) => {
         #[allow(unused)]
-        impl From<$error> for AppError {
+        impl From<$error> for AuthError {
             fn from(value: $error) -> Self {
                 #[cfg(feature = "dev")]
                 {
@@ -100,14 +100,12 @@ macro_rules! impl_from {
                         backtrace.frames()[4]
                     );
                 }
-                use tracing::error;
-                error!("{}", value);
-                AppError {
+                AuthError(AppError {
                     error: format!("error:::::::: {}", $message),
                     error_id: Default::default(),
                     status: Default::default(),
                     error_details: None,
-                }
+                })
             }
         }
     };

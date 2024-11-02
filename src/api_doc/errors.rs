@@ -1,7 +1,5 @@
 use crate::api_doc::axum_json_for_schema::JsonSchemaRejection;
-use crate::impl_from;
 use aide::OperationIo;
-use alloy::eips::eip1898::ParseBlockIdError;
 use axum::{http::StatusCode, response::IntoResponse};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -23,19 +21,13 @@ pub struct AppError {
     pub error_details: Option<Value>,
 }
 
-impl_from!(diesel::result::Error);
-impl_from!(r2d2::Error);
-impl_from!(alloy::hex::FromHexError, "address format error");
-impl_from!(alloy::primitives::SignatureError);
-impl_from!(ParseBlockIdError);
-
 impl Display for AppError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "(+error:{}, +error_id:{})", self.error, self.error_id)
     }
 }
 
-impl Error for AppError {}
+// impl Error for AppError {}
 
 impl AppError {
     pub fn new(error: &str) -> Self {
@@ -74,6 +66,25 @@ impl From<JsonSchemaRejection> for AppError {
             JsonSchemaRejection::Schema(s) => {
                 Self::new("invalid request").with_details(json!({ "schema_validation": s }))
             }
+        }
+    }
+}
+
+impl<T: Error> From<T> for AppError {
+    fn from(value: T) -> Self {
+        #[cfg(feature = "dev")]
+        {
+            let backtrace = std::backtrace::Backtrace::capture();
+            tracing::error!(
+                "error occurred: position: {:?} ; error:{value}",
+                backtrace.frames()[4]
+            );
+        }
+        AppError {
+            error: format!("error: {}", value),
+            error_id: Default::default(),
+            status: Default::default(),
+            error_details: None,
         }
     }
 }
