@@ -31,7 +31,11 @@ pub struct AppError {
 
 impl Display for AppError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "(+error:{}, +error_id:{})", self.error, self.error_id)
+        write!(
+            f,
+            "(+error:{}, +error_id:{}, +error_details:{:?})",
+            self.error, self.error_id, self.error_details
+        )
     }
 }
 
