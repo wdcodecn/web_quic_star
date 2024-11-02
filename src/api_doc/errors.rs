@@ -27,8 +27,6 @@ impl Display for AppError {
     }
 }
 
-// impl Error for AppError {}
-
 impl AppError {
     pub fn new(error: &str) -> Self {
         Self {
