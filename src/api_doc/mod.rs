@@ -4,7 +4,6 @@ use alloy::transports::http::reqwest::StatusCode;
 use axum::http::Uri;
 use schemars::JsonSchema;
 use serde::Serialize;
-use uuid::Uuid;
 
 use crate::api_doc::errors::AppError;
 use crate::api_doc::extractors::Json;
@@ -49,13 +48,10 @@ pub fn api_docs(api: TransformOpenApi) -> TransformOpenApi {
             },
         )
         .default_response_with::<axum::Json<AppError>, _>(|res| {
-            res.example(AppError {
-                error: "some error happened".to_string(),
-                error_details: None,
-                error_id: Uuid::nil(),
-                // This is not visible.
-                status: StatusCode::IM_A_TEAPOT,
-            })
+            res.example(
+                AppError::new("some error happened".to_string())
+                    .with_status(StatusCode::IM_A_TEAPOT),
+            )
         })
 }
 

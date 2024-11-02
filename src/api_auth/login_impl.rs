@@ -87,11 +87,7 @@ impl_from!(alloy::primitives::SignatureError);
 impl std::error::Error for AuthError {}
 impl Display for AuthError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "(+error:{}, +error_id:{})",
-            self.0.error, self.0.error_id
-        )
+        write!(f, "(+error:{})", self)
     }
 }
 

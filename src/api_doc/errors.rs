@@ -2,25 +2,23 @@ use crate::api_doc::axum_json_for_schema::JsonSchemaRejection;
 use aide::OperationIo;
 use axum::{http::StatusCode, response::IntoResponse};
 use schemars::JsonSchema;
-use serde::de::StdError;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
-use std::ops::Deref;
 use uuid::Uuid;
 /// A default error response for most API errors.
 #[derive(Debug, Serialize, JsonSchema, Deserialize, OperationIo)]
 pub struct AppError {
     /// An error message.
-    pub error: String,
+    error: String,
     /// A unique error ID.
-    pub error_id: Uuid,
+    error_id: Uuid,
     #[serde(skip)]
-    pub status: StatusCode,
+    status: StatusCode,
     /// Optional Additional error details.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub error_details: Option<Value>,
+    error_details: Option<Value>,
 }
 
 // impl Deref for AppError {
@@ -38,9 +36,9 @@ impl Display for AppError {
 }
 
 impl AppError {
-    pub fn new(error: &str) -> Self {
+    pub fn new(error: String) -> Self {
         Self {
-            error: error.to_string(),
+            error,
             error_id: Uuid::new_v4(),
             status: StatusCode::BAD_REQUEST,
             error_details: None,
@@ -60,11 +58,10 @@ impl AppError {
 impl From<JsonSchemaRejection> for AppError {
     fn from(rejection: JsonSchemaRejection) -> Self {
         match rejection {
-            JsonSchemaRejection::Json(j) => Self::new(&j.to_string()),
-            JsonSchemaRejection::Serde(_) => Self::new("invalid request"),
-            JsonSchemaRejection::Schema(s) => {
-                Self::new("invalid request").with_details(json!({ "schema_validation": s }))
-            }
+            JsonSchemaRejection::Json(j) => Self::new(j.to_string()),
+            JsonSchemaRejection::Serde(_) => Self::new("invalid request".to_string()),
+            JsonSchemaRejection::Schema(s) => Self::new("invalid request".to_string())
+                .with_details(json!({ "schema_validation": s })),
         }
     }
 }
@@ -74,12 +71,7 @@ impl<T: Error> From<T> for AppError {
     fn from(value: T) -> Self {
         let caller_location = std::panic::Location::caller();
         tracing::error!("Position: {caller_location} ; Error:{value}",);
-        AppError {
-            error: format!("error: {}", value),
-            error_id: Default::default(),
-            status: Default::default(),
-            error_details: None,
-        }
+        AppError::new(format!("error: {}", value))
     }
 }
 
