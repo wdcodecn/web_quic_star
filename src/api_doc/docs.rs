@@ -46,7 +46,7 @@ pub fn docs_routes() -> ApiRouter {
             "/",
             get_with(
                 Scalar::new("/docs/private/api.json")
-                    .with_title("Aide Axum")
+                    .with_title("web_quic_star")
                     .axum_handler(),
                 |op| op.description("This documentation page."),
             ),
@@ -56,7 +56,7 @@ pub fn docs_routes() -> ApiRouter {
             "/redoc",
             get_with(
                 Redoc::new("/docs/private/api.json")
-                    .with_title("Aide Axum")
+                    .with_title("web_quic_star")
                     .axum_handler(),
                 |op| op.description("This documentation page."),
             ),

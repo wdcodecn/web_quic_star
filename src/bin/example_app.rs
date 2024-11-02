@@ -31,7 +31,7 @@ async fn main() {
         )
         .nest_api_service(
             "/group_permission",
-            crate::controller::group_permission::web_routes(connection_pool.clone()),
+            controller::group_permission::web_routes(connection_pool.clone()),
         )
         .fallback(fallback)
         .with_state(connection_pool.clone())
