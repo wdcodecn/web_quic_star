@@ -108,12 +108,7 @@ impl AuthnBackend for AuthBackend {
             .first(&mut self.db.get()?)
         {
             Ok(user) => verify_password(creds.password, &user.password)
-                .map_err(|e| AppError {
-                    error: format!("{}", e),
-                    error_id: Default::default(),
-                    status: Default::default(),
-                    error_details: None,
-                })
+                .map_err(|e| AuthError(AppError::new(e.to_string())))
                 .map(|_| Some(user)),
             Err(e) => Err(e.into()),
         }

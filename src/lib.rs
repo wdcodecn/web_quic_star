@@ -19,6 +19,7 @@ use tokio_cron_scheduler::{Job, JobScheduler};
 pub mod api_auth;
 pub mod api_doc;
 pub mod api_wrapper;
+#[cfg(feature = "wallet_auth")]
 pub mod contracts;
 pub mod controller;
 pub mod domain;
@@ -73,7 +74,7 @@ pub fn set_env() {
     #[cfg(feature = "dev")]
     {
         tracing::info!("profile :{} is active", "dev");
-        dotenvy::from_filename("env_prod.env").ok();
+        dotenvy::from_filename(".env").ok();
     }
     #[cfg(not(feature = "dev"))]
     {
