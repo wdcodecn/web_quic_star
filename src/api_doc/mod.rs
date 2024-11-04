@@ -1,7 +1,7 @@
 use aide::openapi::Tag;
 use aide::transform::{TransformOpenApi, TransformOperation};
-use alloy::transports::http::reqwest::StatusCode;
 use axum::http::Uri;
+use reqwest::StatusCode;
 use schemars::JsonSchema;
 use serde::Serialize;
 

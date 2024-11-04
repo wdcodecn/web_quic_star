@@ -74,12 +74,12 @@ pub fn set_env() {
     #[cfg(feature = "dev")]
     {
         tracing::info!("profile :{} is active", "dev");
-        dotenvy::from_filename(".env").ok();
+        dotenvy::from_filename(".env").expect("no .env file");
     }
     #[cfg(not(feature = "dev"))]
     {
         tracing::info!("profile :{} is active", "release");
-        dotenvy::from_filename("env_prod.env").ok();
+        dotenvy::from_filename("env_prod.env").expect("no env_prod.env file");
     }
 }
 

@@ -1,7 +1,8 @@
 use crate::api_doc::errors::AppError;
+#[cfg(feature = "eth_mode")]
+use crate::controller::addr_str::AddrStr;
 use crate::controller::permission::Permission;
 use crate::controller::user::{NewUser, User};
-use crate::controller::AddrStr;
 use crate::impl_from;
 use crate::schema::groups::dsl::groups;
 use crate::schema::groups_permissions::dsl::groups_permissions;
@@ -9,9 +10,7 @@ use crate::schema::groups_permissions::{group_id, permission_id};
 use crate::schema::permissions::dsl::permissions;
 use crate::schema::users::dsl::users;
 use crate::schema::users::username;
-use alloy::hex::FromHex;
-use alloy::primitives::Address;
-use alloy::signers::Signature;
+
 use axum::async_trait;
 use axum_login::{AuthUser, AuthnBackend, AuthzBackend, UserId};
 use chrono::DateTime;
@@ -83,11 +82,12 @@ pub struct AuthError(AppError);
 impl_from!(diesel::result::Error);
 impl_from!(r2d2::Error);
 // impl_from!(alloy::hex::FromHexError, "address format error");
+#[cfg(feature = "eth_mode")]
 impl_from!(alloy::primitives::SignatureError);
 impl std::error::Error for AuthError {}
 impl Display for AuthError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "(+error:{})", self)
+        write!(f, "(+error:{})", self.0)
     }
 }
 
@@ -119,6 +119,7 @@ impl AuthnBackend for AuthBackend {
         &self,
         creds: Self::Credentials,
     ) -> Result<Option<Self::User>, Self::Error> {
+        use alloy::signers::Signature;
         let signature = Signature::from_str(&creds.signature)?;
         let recovered_addr = signature.recover_address_from_msg(LOGIN_MESSAGE)?;
         let user_addr = creds.user_addr.0;

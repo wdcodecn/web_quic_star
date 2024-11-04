@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["dev"]
-eth_mode = []
+default = ["dev","eth_mode"]
+eth_mode = ["dep:alloy"]
 dev=[]
 
 [dependencies]
@@ -35,8 +35,8 @@ diesel-derive-enum = { version = "2.1.0", features = ["postgres"] }
 
 
 dotenvy = "0.15.7"
-alloy = { version = "0.5.4", features = ["full"] }
-reqwest = "0.12.9"
+alloy = { version = "0.5.4", features = ["full"] ,optional = true}
+reqwest = { version = "0.12.9",features = ["json"] }
 futures = "0.3.31"
 tokio-cron-scheduler = { version = "0.13.0",features = [] }
 derive_builder = {path = "crates/derive_builder" }
