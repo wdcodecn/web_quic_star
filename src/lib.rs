@@ -19,7 +19,7 @@ use tokio_cron_scheduler::{Job, JobScheduler};
 pub mod api_auth;
 pub mod api_doc;
 pub mod api_wrapper;
-#[cfg(feature = "wallet_auth")]
+#[cfg(feature = "eth_mode")]
 pub mod contracts;
 pub mod controller;
 pub mod domain;

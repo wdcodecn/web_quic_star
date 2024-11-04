@@ -5,7 +5,7 @@ edition = "2021"
 
 [features]
 default = ["dev"]
-wallet_auth = []
+eth_mode = []
 dev=[]
 
 [dependencies]

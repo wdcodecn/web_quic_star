@@ -41,7 +41,7 @@ pub struct AuthBackend {
     db: Pool<ConnectionManager<PgConnection>>,
 }
 
-#[cfg(not(feature = "wallet_auth"))]
+#[cfg(not(feature = "eth_mode"))]
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct Credentials {
     pub username: String,
@@ -49,7 +49,7 @@ pub struct Credentials {
     pub next: Option<String>,
 }
 
-#[cfg(feature = "wallet_auth")]
+#[cfg(feature = "eth_mode")]
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct Credentials {
     pub user_addr: AddrStr,
@@ -97,7 +97,7 @@ impl AuthnBackend for AuthBackend {
     type Credentials = Credentials;
     type Error = AuthError;
 
-    #[cfg(not(feature = "wallet_auth"))]
+    #[cfg(not(feature = "eth_mode"))]
     async fn authenticate(
         &self,
         creds: Self::Credentials,
@@ -114,7 +114,7 @@ impl AuthnBackend for AuthBackend {
         }
     }
 
-    #[cfg(feature = "wallet_auth")]
+    #[cfg(feature = "eth_mode")]
     async fn authenticate(
         &self,
         creds: Self::Credentials,
