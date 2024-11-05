@@ -27,6 +27,9 @@ pub mod models;
 pub mod scheduled_task;
 pub mod schema;
 
+type AppRes<T> = Result<T, AppError>;
+
+
 pub static GLOBAL_CONNECTION_POOL: OnceLock<Pool<ConnectionManager<PgConnection>>> =
     OnceLock::new();
 
