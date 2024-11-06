@@ -12,27 +12,6 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
 
 const LOGIN_URL: &str = "/auth/login";
-#[cfg(feature = "eth_mode")]
-pub mod addr_str {
-    use super::*;
-    use alloy::primitives::Address;
-    #[derive(OperationIo, Default, Debug, Serialize, Deserialize, Clone)]
-    pub struct AddrStr(pub(crate) Address);
-
-    impl JsonSchema for AddrStr {
-        fn schema_name() -> String {
-            "SolanaAddr".to_owned()
-        }
-
-        fn json_schema(gen: &mut SchemaGenerator) -> Schema {
-            SchemaObject {
-                instance_type: Some(InstanceType::String.into()),
-                ..Default::default()
-            }
-            .into()
-        }
-    }
-}
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(default)]
 pub struct PageParam<T: Default> {

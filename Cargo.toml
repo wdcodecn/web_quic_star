@@ -5,8 +5,8 @@ edition = "2021"
 
 [features]
 default = ["dev"]
-eth_mode = ["alloy"]
-solana_mode = ["solana-sdk","anchor-client"]
+eth_mode = ["dep:alloy"]
+solana_mode = ["dep:solana-sdk","dep:anchor-client"]
 dev = []
 
 [dependencies]

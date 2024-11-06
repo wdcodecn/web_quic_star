@@ -1,8 +1,8 @@
 use crate::api_doc::errors::AppError;
-#[cfg(feature = "eth_mode")]
-use crate::controller::addr_str::AddrStr;
 use crate::controller::permission::Permission;
 use crate::controller::user::{NewUser, User};
+#[cfg(feature = "eth_mode")]
+use crate::domain::eth_addr::addr_str::AddrStr;
 use crate::impl_from;
 use crate::schema::groups::dsl::groups;
 use crate::schema::groups_permissions::dsl::groups_permissions;

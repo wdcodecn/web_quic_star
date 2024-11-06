@@ -63,8 +63,8 @@ impl From<JsonSchemaRejection> for AppError {
     fn from(rejection: JsonSchemaRejection) -> Self {
         match rejection {
             JsonSchemaRejection::Json(j) => Self::new(j.to_string()),
-            JsonSchemaRejection::Serde(_) => Self::new("invalid request".to_string()),
-            JsonSchemaRejection::Schema(s) => Self::new("invalid request".to_string())
+            JsonSchemaRejection::Serde(e) => Self::new(format!("serialize error{e}")),
+            JsonSchemaRejection::Schema(s) => Self::new("schema validation error".to_string())
                 .with_details(json!({ "schema_validation": s })),
         }
     }

@@ -13,25 +13,5 @@ macro_rules! impl_from {
                 AuthError(AppError::new(format!("error:::::::: {}", value)))
             }
         }
-    }; // ($error:path,$message:literal) => {
-       //     #[allow(unused)]
-       //     impl From<$error> for AuthError {
-       //         fn from(value: $error) -> Self {
-       //             #[cfg(feature = "dev")]
-       //             {
-       //                 let backtrace = std::backtrace::Backtrace::capture();
-       //                 tracing::error!(
-       //                     "error occurred: position: {:?} ; error:{value}",
-       //                     backtrace.frames()[4]
-       //                 );
-       //             }
-       //             AuthError(AppError {
-       //                 error: format!("error:::::::: {}", $message),
-       //                 error_id: Default::default(),
-       //                 status: Default::default(),
-       //                 error_details: None,
-       //             })
-       //         }
-       //     }
-       // };
+    };
 }

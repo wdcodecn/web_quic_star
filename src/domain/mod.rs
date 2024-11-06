@@ -14,3 +14,8 @@
 // //     let to = serde_json::from_str::<To>(&serialised)?;
 // //     Ok(to)
 // // }
+
+#[cfg(feature = "eth_mode")]
+pub mod eth_addr;
+#[cfg(feature = "solana_mode")]
+pub mod solana_addr;

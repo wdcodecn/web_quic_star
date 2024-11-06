@@ -7,6 +7,7 @@ use std::sync::{Arc, OnceLock};
 
 use crate::api_doc::api_docs;
 use crate::api_doc::docs::docs_routes;
+use crate::api_doc::errors::AppError;
 use aide::axum::ApiRouter;
 use aide::openapi::OpenApi;
 use axum_login::tower_sessions::cookie::time::Duration;
@@ -28,7 +29,6 @@ pub mod scheduled_task;
 pub mod schema;
 
 type AppRes<T> = Result<T, AppError>;
-
 
 pub static GLOBAL_CONNECTION_POOL: OnceLock<Pool<ConnectionManager<PgConnection>>> =
     OnceLock::new();
