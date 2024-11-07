@@ -2,6 +2,7 @@ use crate::api_doc::errors::AppError;
 use crate::controller::permission::Permission;
 use crate::controller::user::{NewUser, User};
 #[cfg(feature = "eth_mode")]
+use crate::domain::eth_addr::EthAddr;
 use crate::impl_from;
 use crate::schema::groups::dsl::groups;
 use crate::schema::groups_permissions::dsl::groups_permissions;
@@ -9,8 +10,6 @@ use crate::schema::groups_permissions::{group_id, permission_id};
 use crate::schema::permissions::dsl::permissions;
 use crate::schema::users::dsl::users;
 use crate::schema::users::username;
-
-use crate::domain::eth_addr::EthAddr;
 use axum::async_trait;
 use axum_login::{AuthUser, AuthnBackend, AuthzBackend, UserId};
 use chrono::DateTime;
@@ -26,7 +25,6 @@ use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 use std::string::ToString;
 use std::time::SystemTime;
-
 const LOGIN_MESSAGE: &str = "welcome";
 pub const DEFAULT_TENANTRY: &str = "default";
 
