@@ -31,7 +31,7 @@ impl<'de> Deserialize<'de> for SolAddr {
         String::deserialize(deserializer)
             .and_then(|string| {
                 Pubkey::from_str(&string).map_err(|err| {
-                    Error::custom(format!("serialize value:`{string}` failed,err:{err}"))
+                    Error::custom(format!("deserialize value:`{string}` failed,err:{err}"))
                 })
             })
             .map(SolAddr)

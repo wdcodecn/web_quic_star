@@ -32,7 +32,7 @@ impl<'de> Deserialize<'de> for EthAddr {
         String::deserialize(deserializer)
             .and_then(|string| {
                 Address::from_str(&string).map_err(|err| {
-                    Error::custom(format!("serialize value:`{string}` failed,err:{err}"))
+                    Error::custom(format!("deserialize value:`{string}` failed,err:{err}"))
                 })
             })
             .map(|x| EthAddr(x))
