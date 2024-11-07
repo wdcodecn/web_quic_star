@@ -39,13 +39,15 @@ pub async fn set_scheduler() {
         .expect("cannot create jobs scheduler");
     sched
         .add(
-            Job::new("1/10 * * * * *", |_uuid, _l| {
-                // println!("I run every 10 seconds");
+            Job::new_async("1 * * * * *", |_uuid, _l| {
+                Box::pin(async move {
+                    print!("copy me");
+                })
             })
-            .expect("cannot create job"),
+            .expect("cannot create scheduler"),
         )
         .await
-        .expect("cannot join job");
+        .expect("cannot schedule jobs");
 
     sched.start().await.expect("cannot start jobs scheduler");
 }
