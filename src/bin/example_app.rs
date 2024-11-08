@@ -19,15 +19,15 @@ async fn main() {
         .nest_api_service("/auth", api_auth::router::router())
         .nest_api_service(
             "/users",
-            controller::user::web_routes(connection_pool.clone()),
+            controller::user::web_routes2(connection_pool.clone()),
         )
         .nest_api_service(
             "/groups",
-            controller::group::web_routes(connection_pool.clone()),
+            controller::group::web_routes2(connection_pool.clone()),
         )
         .nest_api_service(
             "/permissions",
-            controller::permission::web_routes(connection_pool.clone()),
+            controller::permission::web_routes2(connection_pool.clone()),
         )
         .nest_api_service(
             "/group_permission",
