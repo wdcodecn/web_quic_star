@@ -1,12 +1,15 @@
-use aide::openapi::Tag;
+use crate::api_doc::docs::docs_routes;
+use crate::api_doc::errors::AppError;
+use crate::api_doc::extractors::Json;
+use aide::axum::ApiRouter;
+use aide::openapi::{OpenApi, Tag};
 use aide::transform::{TransformOpenApi, TransformOperation};
 use axum::http::Uri;
+use axum::{Extension, Router};
 use reqwest::StatusCode;
 use schemars::JsonSchema;
 use serde::Serialize;
-
-use crate::api_doc::errors::AppError;
-use crate::api_doc::extractors::Json;
+use std::sync::Arc;
 
 pub mod axum_json_for_schema;
 pub mod docs;
@@ -60,4 +63,15 @@ pub async fn root() -> &'static str {
 }
 pub async fn fallback(uri: Uri) -> (StatusCode, String) {
     (StatusCode::NOT_FOUND, format!("No route for {uri}"))
+}
+
+pub fn set_api_doc(app: ApiRouter) -> Router {
+    aide::gen::on_error(|error| {
+        println!("{error}");
+    });
+    aide::gen::extract_schemas(true);
+    let mut api = OpenApi::default();
+    app.nest_api_service("/docs", docs_routes())
+        .finish_api_with(&mut api, api_docs)
+        .layer(Extension(Arc::new(api)))
 }

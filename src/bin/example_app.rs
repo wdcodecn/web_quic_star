@@ -2,10 +2,10 @@ use std::env;
 
 use aide::axum::ApiRouter;
 
-use web_quic_star::api_doc::fallback;
-use web_quic_star::{
-    api_auth, controller, get_auth_layer, get_connection_pool, set_api_doc, set_env, set_scheduler,
-};
+use web_quic_star::api_auth::get_auth_layer;
+use web_quic_star::api_doc::{fallback, set_api_doc};
+use web_quic_star::scheduled_task::set_scheduler;
+use web_quic_star::{api_auth, controller, get_connection_pool, set_env};
 
 #[tokio::main]
 async fn main() {
@@ -13,7 +13,7 @@ async fn main() {
     set_env();
 
     let connection_pool = get_connection_pool();
-    set_scheduler().await;
+    set_scheduler(connection_pool.clone()).await;
 
     let app = ApiRouter::new()
         .nest_api_service("/auth", api_auth::router::router())
