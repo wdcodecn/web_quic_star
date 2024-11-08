@@ -74,66 +74,52 @@ VALUES (-2, 'super_admin', null, null, now(), -2, null, false);
 
 
 
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('common_read', null, null, now(), -2, null, false);
+INSERT INTO permissions (id, name, remark, update_time, create_time, create_by, update_by, is_delete)
+VALUES (-1, 'common_read', null, null, now(), -2, null, false);
 
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('common_add', null, null, now(), -2, null, false);
+INSERT INTO permissions (id, name, remark, update_time, create_time, create_by, update_by, is_delete)
+VALUES (-2, 'common_add', null, null, now(), -2, null, false);
 
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('common_delete', null, null, now(), -2, null, false);
+INSERT INTO permissions (id, name, remark, update_time, create_time, create_by, update_by, is_delete)
+VALUES (-3, 'common_delete', null, null, now(), -2, null, false);
 
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('common_update', null, null, now(), -2, null, false);
+INSERT INTO permissions (id, name, remark, update_time, create_time, create_by, update_by, is_delete)
+VALUES (-4, 'common_update', null, null, now(), -2, null, false);
 
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('permissions_read', null, null, now(), -2, null, false);
 
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('permissions_add', null, null, now(), -2, null, false);
 
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('permissions_delete', null, null, now(), -2, null, false);
+INSERT INTO permissions (id, name, remark, update_time, create_time, create_by, update_by, is_delete)
+VALUES (-5, 'users_read', null, null, now(), -2, null, false);
 
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('permissions_update', null, null, now(), -2, null, false);
+INSERT INTO permissions (id, name, remark, update_time, create_time, create_by, update_by, is_delete)
+VALUES (-6, 'users_add', null, null, now(), -2, null, false);
 
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('groups_read', null, null, now(), -2, null, false);
+INSERT INTO permissions (id, name, remark, update_time, create_time, create_by, update_by, is_delete)
+VALUES (-7, 'users_delete', null, null, now(), -2, null, false);
 
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('groups_add', null, null, now(), -2, null, false);
-
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('groups_delete', null, null, now(), -2, null, false);
-
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('groups_update', null, null, now(), -2, null, false);
-
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('users_read', null, null, now(), -2, null, false);
-
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('users_add', null, null, now(), -2, null, false);
-
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('users_delete', null, null, now(), -2, null, false);
-
-INSERT INTO permissions (name, remark, update_time, create_time, create_by, update_by, is_delete)
-VALUES ('users_update', null, null, now(), -2, null, false);
+INSERT INTO permissions (id, name, remark, update_time, create_time, create_by, update_by, is_delete)
+VALUES (-8, 'users_update', null, null, now(), -2, null, false);
 
 
 
 INSERT INTO groups_permissions (group_id, permission_id)
-VALUES (-1, 1);
+VALUES (-1, -1);
 INSERT INTO groups_permissions (group_id, permission_id)
-VALUES (-2, 1);
+VALUES (-2, -1);
 INSERT INTO groups_permissions (group_id, permission_id)
-VALUES (-2, 2);
+VALUES (-2, -2);
 INSERT INTO groups_permissions (group_id, permission_id)
-VALUES (-2, 3);
+VALUES (-2, -3);
 INSERT INTO groups_permissions (group_id, permission_id)
-VALUES (-2, 4);
+VALUES (-2, -4);
+INSERT INTO groups_permissions (group_id, permission_id)
+VALUES (-2, -5);
+INSERT INTO groups_permissions (group_id, permission_id)
+VALUES (-2, -6);
+INSERT INTO groups_permissions (group_id, permission_id)
+VALUES (-2, -7);
+INSERT INTO groups_permissions (group_id, permission_id)
+VALUES (-2, -8);
 
 
 

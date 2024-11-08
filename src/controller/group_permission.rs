@@ -76,9 +76,9 @@ pub fn web_routes(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRouter
         ),
     );
     router_add
-        .route_layer(permission_required!(AuthBackend, "common_add"))
-        .merge(router_read.route_layer(permission_required!(AuthBackend, "common_read")))
-        .merge(router_delete.route_layer(permission_required!(AuthBackend, "common_delete")))
+        .route_layer(permission_required!(AuthBackend, "users_add"))
+        .merge(router_read.route_layer(permission_required!(AuthBackend, "users_read")))
+        .merge(router_delete.route_layer(permission_required!(AuthBackend, "users_delete")))
         .with_state(conn_pool)
 }
 mod web {
