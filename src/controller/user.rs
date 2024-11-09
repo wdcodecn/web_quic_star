@@ -49,7 +49,11 @@ pub struct NewUser {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {
     pub id: i64,
+    /// # Username
+    /// in eth mode it will be address
     pub username: String,
+    /// # password
+    /// in eth mode it will be signature
     pub password: String,
     pub group_id: i64,
     pub tenantry: String,

@@ -6,7 +6,9 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::ops::{Deref, DerefMut};
 
-#[derive(OperationIo, Default, Debug, Clone, AsExpression, FromSqlRow, Copy)]
+#[derive(
+    OperationIo, Default, Debug, Clone, AsExpression, FromSqlRow, Copy, Hash, Eq, PartialEq,
+)]
 #[diesel(sql_type = Text)]
 pub struct SolAddr(pub Pubkey);
 
