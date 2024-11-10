@@ -11,11 +11,14 @@ pub mod api_doc;
 pub mod api_wrapper;
 #[cfg(feature = "eth_mode")]
 pub mod contracts;
+
+#[cfg(feature = "postgres")]
 pub mod controller;
 pub mod domain;
-pub mod models;
 pub mod scheduled_task;
 pub mod schema;
+#[cfg(feature = "postgres")]
+pub mod db_models; 
 
 type AppRes<T> = Result<T, AppError>;
 

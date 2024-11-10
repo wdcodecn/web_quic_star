@@ -1,6 +1,4 @@
 use crate::api_doc::errors::AppError;
-use crate::controller::permission::Permission;
-use crate::controller::user::{NewUser, User};
 #[cfg(feature = "eth_mode")]
 use crate::domain::eth_addr::EthAddr;
 use crate::impl_from;
@@ -25,6 +23,9 @@ use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 use std::string::ToString;
 use std::time::SystemTime;
+use crate::db_models::permission::Permission;
+use crate::db_models::user::{NewUser, User};
+
 const LOGIN_MESSAGE: &str = "welcome";
 pub const DEFAULT_TENANTRY: &str = "default";
 

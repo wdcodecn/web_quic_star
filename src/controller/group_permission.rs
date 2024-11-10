@@ -8,33 +8,8 @@ use diesel::{AsChangeset, Identifiable, Insertable, Queryable, Selectable};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Queryable, Debug, Selectable, Serialize, Deserialize, JsonSchema, Insertable)]
-#[diesel(primary_key(group_id, permission_id))]
-#[diesel(table_name = crate::schema::groups_permissions)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct NewGroupsPermission {
-    pub group_id: i64,
-    pub permission_id: i64,
-}
 
-#[derive(
-    Queryable,
-    Debug,
-    Identifiable,
-    Selectable,
-    // WebApiGen,
-    Serialize,
-    Deserialize,
-    JsonSchema,
-    Default,
-)]
-#[diesel(primary_key(group_id, permission_id))]
-#[diesel(table_name = crate::schema::groups_permissions)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct GroupsPermission {
-    pub group_id: i64,
-    pub permission_id: i64,
-}
+
 
 #[allow(clippy::all)]
 #[derive(Deserialize, Serialize, JsonSchema, Default, Clone)]
@@ -54,6 +29,8 @@ use axum::extract::Path;
 use axum_login::permission_required;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::PgConnection;
+use crate::db_models::group_permission::GroupsPermission;
+
 pub fn web_routes(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRouter {
     let router_add = ApiRouter::new().api_route(
         "/create_entity",
@@ -89,6 +66,7 @@ mod web {
     use axum::extract::State;
     use diesel::r2d2::{ConnectionManager, Pool};
     use diesel::{ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl, SelectableHelper};
+    use crate::db_models::group_permission::NewGroupsPermission;
 
     pub async fn create_entity(
         State(pool): State<Pool<ConnectionManager<PgConnection>>>,

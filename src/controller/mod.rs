@@ -11,7 +11,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
 
-const LOGIN_URL: &str = "/auth/login";
+pub const LOGIN_URL: &str = "/auth/login";
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(default)]
 pub struct PageParam<T: Default> {
