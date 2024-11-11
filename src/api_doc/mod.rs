@@ -1,7 +1,7 @@
 use crate::api_doc::docs::docs_routes;
 use crate::api_doc::errors::AppError;
 use aide::axum::ApiRouter;
-use aide::openapi::{OpenApi, Tag};
+use aide::openapi::OpenApi;
 use aide::transform::{TransformOpenApi, TransformOperation};
 use axum::http::Uri;
 use axum::{Extension, Router};
@@ -34,18 +34,18 @@ pub fn empty_resp_docs(op: TransformOperation) -> TransformOperation {
 pub fn api_docs(api: TransformOpenApi) -> TransformOpenApi {
     api.title("RsWebQuicStar")
         .summary("RsWebQuicStar")
-        .description(include_str!("../api-doc.md"))
-        .tag(Tag {
-            name: "todo".into(),
-            description: Some("Todo Management".into()),
-            ..Default::default()
-        })
+        .description(include_str!("api-doc.md"))
+        // .tag(Tag {
+        //     name: "tod".into(),
+        //     description: Some("Tod Management".into()),
+        //     ..Default::default()
+        // })
         .security_scheme(
             "ApiKey",
             aide::openapi::SecurityScheme::ApiKey {
-                location: aide::openapi::ApiKeyLocation::Header,
-                name: "X-Auth-Key".into(),
-                description: Some("A key that is ignored.".into()),
+                location: aide::openapi::ApiKeyLocation::Cookie,
+                name: "id".into(),
+                description: Some("HttpOnly; SameSite=Strict; Path=/; ".into()),
                 extensions: Default::default(),
             },
         )
