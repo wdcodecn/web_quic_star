@@ -31,7 +31,7 @@ use http::{Request, StatusCode};
 use itertools::Itertools;
 use jsonschema::{
     output::{BasicOutput, ErrorDescription, OutputUnit},
-    JSONSchema,
+    Validator,
 };
 use schemars::{
     gen::{SchemaGenerator, SchemaSettings},
@@ -66,17 +66,15 @@ where
         let validation_result = CONTEXT.with(|ctx| {
             let ctx = &mut *ctx.borrow_mut();
             let schema = ctx.schemas.entry(TypeId::of::<T>()).or_insert_with(|| {
-                jsonschema::JSONSchema::compile(
-                    &serde_json::to_value(ctx.generator.root_schema_for::<T>()).unwrap(),
-                )
-                .unwrap_or_else(|error| {
-                    tracing::error!(
-                        %error,
-                        type_name = type_name::<T>(),
-                        "invalid JSON schema for type"
-                    );
-                    JSONSchema::compile(&Value::Object(Map::default())).unwrap()
-                })
+                Validator::new(&serde_json::to_value(ctx.generator.root_schema_for::<T>()).unwrap())
+                    .unwrap_or_else(|error| {
+                        tracing::error!(
+                            %error,
+                            type_name = type_name::<T>(),
+                            "invalid JSON schema for type"
+                        );
+                        Validator::new(&Value::Object(Map::default())).unwrap()
+                    })
             });
 
             let out = schema.apply(&value).basic();
@@ -113,7 +111,7 @@ thread_local! {
 
 struct SchemaContext {
     generator: SchemaGenerator,
-    schemas: HashMap<TypeId, JSONSchema>,
+    schemas: HashMap<TypeId, Validator>,
 }
 
 impl SchemaContext {
