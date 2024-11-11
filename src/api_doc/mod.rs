@@ -1,6 +1,5 @@
 use crate::api_doc::docs::docs_routes;
 use crate::api_doc::errors::AppError;
-use crate::api_doc::extractors::Json;
 use aide::axum::ApiRouter;
 use aide::openapi::{OpenApi, Tag};
 use aide::transform::{TransformOpenApi, TransformOperation};
@@ -19,7 +18,7 @@ pub mod extractors;
 pub fn default_resp_docs<Resp: JsonSchema + Serialize>(
     op: TransformOperation,
 ) -> TransformOperation {
-    op.description("default_docs").response::<200, Json<Resp>>()
+    op.description("default_docs")
 }
 
 // pub fn default_resp_docs_with_exam<Resp: JsonSchema + Serialize>(
@@ -66,10 +65,6 @@ pub async fn fallback(uri: Uri) -> (StatusCode, String) {
 }
 
 pub fn set_api_doc(app: ApiRouter) -> Router {
-    aide::gen::on_error(|error| {
-        println!("{error}");
-    });
-    aide::gen::extract_schemas(true);
     let mut api = OpenApi::default();
     app.nest_api_service("/docs", docs_routes())
         .finish_api_with(&mut api, api_docs)
