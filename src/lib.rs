@@ -5,6 +5,7 @@ use crate::api_doc::errors::AppError;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
 use std::env;
+use tracing::error;
 
 pub mod api_auth;
 pub mod api_doc;
@@ -14,11 +15,11 @@ pub mod contracts;
 
 #[cfg(feature = "postgres")]
 pub mod controller;
+#[cfg(feature = "postgres")]
+pub mod db_models;
 pub mod domain;
 pub mod scheduled_task;
 pub mod schema;
-#[cfg(feature = "postgres")]
-pub mod db_models; 
 
 type AppRes<T> = Result<T, AppError>;
 
@@ -56,4 +57,7 @@ pub fn set_log() {
                 .with_line_number(true),
         )
         .init();
+    aide::gen::on_error(|error| {
+        error!("{error}");
+    });
 }

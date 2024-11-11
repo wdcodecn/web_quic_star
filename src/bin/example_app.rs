@@ -14,9 +14,7 @@ async fn main() {
 
     let connection_pool = get_connection_pool();
     set_scheduler(connection_pool.clone()).await;
-    aide::gen::on_error(|error| {
-        error!("{error}");
-    });
+
     aide::gen::extract_schemas(true);
 
     let app = ApiRouter::new()
@@ -42,7 +40,7 @@ async fn main() {
         .layer(get_auth_layer(connection_pool.clone()));
 
     let doc_app = set_api_doc(app);
-    let server_port = env::var("SERVER_PORT").unwrap_or("4090".to_string());
+    let server_port = env::var("SERVER_PORT").unwrap_or("5090".to_string());
     #[cfg(feature = "dev")]
     info!(
         "{}",

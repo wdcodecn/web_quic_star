@@ -29,4 +29,4 @@ to model ,
 
 derive     WebApiGen ,
 
-http://localhost:5090/docs
+cargo run --package web_quic_star --bin example_app

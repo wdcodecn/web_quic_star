@@ -63,7 +63,11 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
         }
     };
     let model = opts.ident.clone();
-    let schema = format_ident!("{}s", model.to_string().to_snake_case());
+
+    let schema = format_ident!("{}", model.to_string().to_snake_case());
+
+    let create_url = format!("create_{schema}");
+    let schema_s = format_ident!("{}s", schema);
     let new_model = format_ident!("New{}", model);
     let mut builder = opts.as_builder();
     let builder_ident = opts.builder_ident();
@@ -85,28 +89,28 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
                     if let Some(filter_param) = filter.#ident {
                         match filter_param.compare {
                             Compare::NotEqual => {
-                                statement = statement.filter(crate::schema::#schema::#ident.ne(filter_param.compare_value.clone()));
-                                count_statement = count_statement.filter(crate::schema::#schema::#ident.ne(filter_param.compare_value));
+                                statement = statement.filter(crate::schema::#schema_s::#ident.ne(filter_param.compare_value.clone()));
+                                count_statement = count_statement.filter(crate::schema::#schema_s::#ident.ne(filter_param.compare_value));
                             }
                             Compare::Equal => {
-                                statement = statement.filter(crate::schema::#schema::#ident.eq(filter_param.compare_value.clone()));
-                                count_statement = count_statement.filter(crate::schema::#schema::#ident.eq(filter_param.compare_value));
+                                statement = statement.filter(crate::schema::#schema_s::#ident.eq(filter_param.compare_value.clone()));
+                                count_statement = count_statement.filter(crate::schema::#schema_s::#ident.eq(filter_param.compare_value));
                             }
                             Compare::Greater => {
-                                statement = statement.filter(crate::schema::#schema::#ident.gt(filter_param.compare_value.clone()));
-                                count_statement = count_statement.filter(crate::schema::#schema::#ident.gt(filter_param.compare_value));
+                                statement = statement.filter(crate::schema::#schema_s::#ident.gt(filter_param.compare_value.clone()));
+                                count_statement = count_statement.filter(crate::schema::#schema_s::#ident.gt(filter_param.compare_value));
                             }
                             Compare::GreaterAndEqual => {
-                                statement = statement.filter(crate::schema::#schema::#ident.ge(filter_param.compare_value.clone()));
-                                count_statement = count_statement.filter(crate::schema::#schema::#ident.ge(filter_param.compare_value));
+                                statement = statement.filter(crate::schema::#schema_s::#ident.ge(filter_param.compare_value.clone()));
+                                count_statement = count_statement.filter(crate::schema::#schema_s::#ident.ge(filter_param.compare_value));
                             }
                             Compare::Less => {
-                                statement = statement.filter(crate::schema::#schema::#ident.lt(filter_param.compare_value.clone()));
-                                count_statement = count_statement.filter(crate::schema::#schema::#ident.lt(filter_param.compare_value));
+                                statement = statement.filter(crate::schema::#schema_s::#ident.lt(filter_param.compare_value.clone()));
+                                count_statement = count_statement.filter(crate::schema::#schema_s::#ident.lt(filter_param.compare_value));
                             }
                             Compare::LessAndEqual => {
-                                statement = statement.filter(crate::schema::#schema::#ident.le(filter_param.compare_value.clone()));
-                                count_statement = count_statement.filter(crate::schema::#schema::#ident.le(filter_param.compare_value));
+                                statement = statement.filter(crate::schema::#schema_s::#ident.le(filter_param.compare_value.clone()));
+                                count_statement = count_statement.filter(crate::schema::#schema_s::#ident.le(filter_param.compare_value));
                             }
                         }
                     }
@@ -117,7 +121,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
         use crate::api_auth::login_impl::AuthBackend;
         use crate::controller::LOGIN_URL;
         use crate::api_doc::{default_resp_docs, empty_resp_docs};
-        use crate::schema::#schema::dsl::#schema;
+        use crate::schema::#schema_s::dsl::#schema_s;
         use aide::axum::routing::{delete_with, get_with, post_with, put_with};
         use aide::axum::ApiRouter;
         use axum::extract::{Path};
@@ -128,30 +132,30 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
         use axum_login::permission_required;
         pub fn web_routes(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRouter {
             let router_add = ApiRouter::new().api_route(
-                "/create_entity",
+                stringify!(/create_#schema),
                 post_with(web::create_entity, empty_resp_docs),
             );
             let router_read = ApiRouter::new()
                 .api_route(
-                    "/get_entity_by_id/:id",
+                    stringify!(/get_#schema),
                     get_with(
                         web::get_entity_by_id,
                         default_resp_docs::<#model>,
                     ),
                 )
                 .api_route(
-                    "/get_entity_page",
+                    stringify!(/page_of_#schema),
                     post_with(web::get_entity_page, empty_resp_docs),
                 );
             let router_update = ApiRouter::new().api_route(
-                "/update_entity_by_id/:id",
+                stringify!(/update_#schema),
                 put_with(
                     web::update_entity_by_id,
                     default_resp_docs::<#model>,
                 ),
             );
             let router_delete = ApiRouter::new().api_route(
-                "/delete_entity_by_id/:id",
+                stringify!(/delete_#schema),
                 delete_with(
                     web::delete_entity_by_id,
                     default_resp_docs::<#model>,
@@ -184,7 +188,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
             ) -> Result<Json<#model>, AppError> {
                 let mut connection = pool.get()?;
 
-                let result = diesel::insert_into(#schema)
+                let result = diesel::insert_into(#schema_s)
                     .values(new_entity)
                     .returning(#model::as_returning())
                     .get_result(&mut connection)?;
@@ -198,7 +202,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
                 Json(new): Json<#new_model>,
             ) -> Result<Json<#model>, AppError> {
                 let mut connection = pool.get()?;
-                let result = diesel::update(#schema.find(id_param))
+                let result = diesel::update(#schema_s.find(id_param))
                     .set(&new)
                     .returning(#model::as_returning())
                     .get_result(&mut connection)?;
@@ -210,7 +214,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
                 Path(id_param): Path<i64>,
             ) -> Result<Json<#model>, AppError> {
                 let mut connection = pool.get()?;
-                let result = #schema
+                let result = #schema_s
                     .find(id_param)
                     .select(#model::as_select())
                     .get_result(&mut connection)?;
@@ -222,8 +226,8 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
                 Path(id_param): Path<i64>,
             ) -> Result<Json<#model>, AppError> {
                 let mut connection = pool.get()?;
-                let result = diesel::update(#schema.find(id_param))
-                    .set(crate::schema::#schema::is_delete.eq(true))
+                let result = diesel::update(#schema_s.find(id_param))
+                    .set(crate::schema::#schema_s::is_delete.eq(true))
                     .returning(#model::as_returning())
                     .get_result(&mut connection)?;
                 Ok(Json(result))
@@ -236,19 +240,19 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
                 let mut connection = pool.get()?;
                 let off_lim = page.get_offset_limit();
 
-                let mut statement = crate::schema::#schema::dsl::#schema.into_boxed();
-                let mut count_statement = crate::schema::#schema::dsl::#schema.into_boxed();
+                let mut statement = crate::schema::#schema_s::dsl::#schema_s.into_boxed();
+                let mut count_statement = crate::schema::#schema_s::dsl::#schema_s.into_boxed();
                 let filter = page.filters.clone();
                     #(#filters)*
-                count_statement = count_statement.filter(crate::schema::#schema::is_delete.eq(false));
+                count_statement = count_statement.filter(crate::schema::#schema_s::is_delete.eq(false));
 
                 let total_count = count_statement.count().get_result::<i64>(&mut connection)?;
 
                 let res;
-                let x_table = diesel_dynamic_schema::table(stringify!(#schema));
+                let x_table = diesel_dynamic_schema::table(stringify!(#schema_s));
 
                 let order_column = x_table.column::<diesel::sql_types::Text, _>(page.order_column.clone());
-                statement = statement.filter(crate::schema::#schema::is_delete.eq(false));
+                statement = statement.filter(crate::schema::#schema_s::is_delete.eq(false));
 
                 if page.is_desc {
                     res = statement

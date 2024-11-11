@@ -10,12 +10,12 @@ use diesel::{AsChangeset, Insertable, Queryable, RunQueryDsl, Selectable};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use aide::axum::ApiRouter;
 use aide::axum::routing::{delete_with, get_with, post_with, put_with};
+use aide::axum::ApiRouter;
 use axum_login::permission_required;
 
-use diesel::{ PgConnection};
 use diesel::r2d2::ConnectionManager;
+use diesel::PgConnection;
 use r2d2::Pool;
 
 use crate::api_auth::login_impl::AuthBackend;
@@ -25,31 +25,7 @@ use crate::db_models::user::User;
 use crate::schema::users::dsl::users;
 
 pub fn web_routes2(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRouter {
-    let router_add = ApiRouter::new().api_route(
-        "/create_entity",
-        post_with(db_models::user::web::create_entity, empty_resp_docs),
-    );
-    let router_read = ApiRouter::new()
-        .api_route(
-            "/get_entity_by_id/:id",
-            get_with(db_models::user::web::get_entity_by_id, default_resp_docs::<User>),
-        )
-        .api_route(
-            "/get_entity_page",
-            post_with(db_models::user::web::get_entity_page, empty_resp_docs),
-        );
-    let router_update = ApiRouter::new().api_route(
-        "/update_entity_by_id/:id",
-        put_with(db_models::user::web::update_entity_by_id, default_resp_docs::<User>),
-    );
-    let router_delete = ApiRouter::new().api_route(
-        "/delete_entity_by_id/:id",
-        delete_with(db_models::user::web::delete_entity_by_id, default_resp_docs::<User>),
-    );
-    let modify_password = ApiRouter::new().api_route(
-        "/modify_password",
-        post_with(modify_password, default_resp_docs::<String>),
-    );
+    let (router_add, router_read, router_update, router_delete, modify_password) = get_routers();
     router_add
         .route_layer(permission_required!(AuthBackend, "users_add"))
         .merge(router_read.route_layer(permission_required!(AuthBackend, "users_read")))
@@ -57,6 +33,56 @@ pub fn web_routes2(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRoute
         .merge(router_update.route_layer(permission_required!(AuthBackend, "users_update")))
         .merge(modify_password.route_layer(login_required!(AuthBackend)))
         .with_state(conn_pool)
+}
+
+pub fn get_routers() -> (
+    ApiRouter<Pool<ConnectionManager<PgConnection>>>,
+    ApiRouter<Pool<ConnectionManager<PgConnection>>>,
+    ApiRouter<Pool<ConnectionManager<PgConnection>>>,
+    ApiRouter<Pool<ConnectionManager<PgConnection>>>,
+    ApiRouter<Pool<ConnectionManager<PgConnection>>>,
+) {
+    let router_add = ApiRouter::new().api_route(
+        "/create_entity",
+        post_with(db_models::user::web::create_entity, empty_resp_docs),
+    );
+    let router_read = ApiRouter::new()
+        .api_route(
+            "/get_entity_by_id/:id",
+            get_with(
+                db_models::user::web::get_entity_by_id,
+                default_resp_docs::<User>,
+            ),
+        )
+        .api_route(
+            "/get_entity_page",
+            post_with(db_models::user::web::get_entity_page, empty_resp_docs),
+        );
+    let router_update = ApiRouter::new().api_route(
+        "/update_entity_by_id/:id",
+        put_with(
+            db_models::user::web::update_entity_by_id,
+            default_resp_docs::<User>,
+        ),
+    );
+    let router_delete = ApiRouter::new().api_route(
+        "/delete_entity_by_id/:id",
+        delete_with(
+            db_models::user::web::delete_entity_by_id,
+            default_resp_docs::<User>,
+        ),
+    );
+    let modify_password = ApiRouter::new().api_route(
+        "/modify_password",
+        post_with(modify_password, default_resp_docs::<String>),
+    );
+    (
+        router_add,
+        router_read,
+        router_update,
+        router_delete,
+        modify_password,
+    )
 }
 
 #[derive(Serialize, Deserialize, OperationIo, Debug, Default, JsonSchema)]
