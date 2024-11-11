@@ -65,8 +65,11 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
     let model = opts.ident.clone();
 
     let schema = format_ident!("{}", model.to_string().to_snake_case());
-
-    let create_url = format!("create_{schema}");
+    let get = format_ident!("get_{schema}_by_id");
+    let create = format_ident!("create_{schema}");
+    let delete = format_ident!("delete_{schema}_by_id");
+    let update = format_ident!("update_{schema}_by_id");
+    let page = format_ident!("page_of_{schema}");
     let schema_s = format_ident!("{}s", schema);
     let new_model = format_ident!("New{}", model);
     let mut builder = opts.as_builder();
@@ -131,36 +134,8 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
         use crate::controller::Filter;
         use axum_login::permission_required;
         pub fn web_routes(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRouter {
-            let router_add = ApiRouter::new().api_route(
-                stringify!(/create_#schema),
-                post_with(web::create_entity, empty_resp_docs),
-            );
-            let router_read = ApiRouter::new()
-                .api_route(
-                    stringify!(/get_#schema),
-                    get_with(
-                        web::get_entity_by_id,
-                        default_resp_docs::<#model>,
-                    ),
-                )
-                .api_route(
-                    stringify!(/page_of_#schema),
-                    post_with(web::get_entity_page, empty_resp_docs),
-                );
-            let router_update = ApiRouter::new().api_route(
-                stringify!(/update_#schema),
-                put_with(
-                    web::update_entity_by_id,
-                    default_resp_docs::<#model>,
-                ),
-            );
-            let router_delete = ApiRouter::new().api_route(
-                stringify!(/delete_#schema),
-                delete_with(
-                    web::delete_entity_by_id,
-                    default_resp_docs::<#model>,
-                ),
-            );
+            let (router_add, router_read, router_update, router_delete) = web::get_routers();
+
             router_add
                 .route_layer(permission_required!(AuthBackend, "common_add"))
                 .merge(router_read.route_layer(permission_required!(AuthBackend, "common_read")))
@@ -181,6 +156,49 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
             use diesel::{ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl, SelectableHelper};
             use crate::api_doc::errors::AppError;
 
+            pub fn get_routers() -> (
+                ApiRouter<Pool<ConnectionManager<PgConnection>>>,
+                ApiRouter<Pool<ConnectionManager<PgConnection>>>,
+                ApiRouter<Pool<ConnectionManager<PgConnection>>>,
+                ApiRouter<Pool<ConnectionManager<PgConnection>>>,
+            ) {
+            let router_add = ApiRouter::new().api_route(
+                concat!("/",stringify!(#create)),
+                post_with(web::create_entity, empty_resp_docs),
+            );
+            let router_read = ApiRouter::new()
+                .api_route(
+                    concat!("/",stringify!(#get)),
+                    get_with(
+                        web::get_entity_by_id,
+                        default_resp_docs::<#model>,
+                    ),
+                )
+                .api_route(
+                    concat!("/",stringify!(#page)),
+                    post_with(web::get_entity_page, empty_resp_docs),
+                );
+            let router_update = ApiRouter::new().api_route(
+                concat!("/",stringify!(#update)),
+                put_with(
+                    web::update_entity_by_id,
+                    default_resp_docs::<#model>,
+                ),
+            );
+            let router_delete = ApiRouter::new().api_route(
+                concat!("/",stringify!(#delete)),
+                delete_with(
+                    web::delete_entity_by_id,
+                    default_resp_docs::<#model>,
+                ),
+            );
+            (
+                router_add,
+                router_read,
+                router_update,
+                router_delete,
+            )
+            }
 
             pub async fn create_entity(
                 State(pool): State<Pool<ConnectionManager<PgConnection>>>,
