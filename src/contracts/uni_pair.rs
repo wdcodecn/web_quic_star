@@ -11,6 +11,7 @@ use crate::contracts::uni_factory::{uni_factory_addr, UNI_FACTORY};
 
 use alloy::primitives::Address;
 
+use crate::AppRes;
 use alloy::sol;
 
 // Codegen from ABI file to interact with the contract.
@@ -21,12 +22,7 @@ sol!(
     "src/contracts/abis/uni_pair.json"
 );
 
-pub async fn get_pair(token_a: Address, token_b: Address) -> Address {
-    let uni_factory = UNI_FACTORY::new(uni_factory_addr().await, readonly_http_provider());
-    uni_factory
-        .getPair(token_a, token_b)
-        .call()
-        .await
-        .expect("uni_factory.getPair rpc error")
-        ._0
+pub async fn get_pair(token_a: Address, token_b: Address) -> AppRes<Address> {
+    let uni_factory = UNI_FACTORY::new(uni_factory_addr().await?, readonly_http_provider());
+    Ok(uni_factory.getPair(token_a, token_b).call().await?._0)
 }

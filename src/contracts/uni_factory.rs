@@ -8,6 +8,7 @@ use std::str::FromStr;
 
 use crate::contracts::readonly_http_provider;
 use crate::contracts::uni_router2::{uni_router2_addr, UNI_ROUTER2};
+use crate::AppRes;
 use alloy::primitives::Address;
 use alloy::sol;
 
@@ -19,12 +20,7 @@ sol!(
     "src/contracts/abis/uni_factory.json"
 );
 
-pub async fn uni_factory_addr() -> Address {
+pub async fn uni_factory_addr() -> AppRes<Address> {
     let uni_router2 = UNI_ROUTER2::new(uni_router2_addr(), readonly_http_provider());
-    uni_router2
-        .factory()
-        .call()
-        .await
-        .expect("uni_router2.factory() RPC call failed")
-        ._0
+    Ok(uni_router2.factory().call().await?._0)
 }

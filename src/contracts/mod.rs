@@ -1,5 +1,6 @@
 use crate::contracts::uni_pair::{get_pair, UNI_PAIR};
 use crate::contracts::usdt::usdt_addr;
+use crate::AppRes;
 use alloy::network::{Ethereum, EthereumWallet, TransactionBuilder};
 use alloy::primitives::aliases::U112;
 use alloy::primitives::{Address, TxHash, U256};
@@ -96,24 +97,20 @@ pub fn weth_addr() -> Address {
         .expect(".env WETH_ADDR")
 }
 
-pub async fn get_dollar_price<T: Into<U112>>(x: T) -> u128 {
+pub async fn get_dollar_price<T: Into<U112>>(x: T) -> AppRes<u128> {
     let usdt_pair = UNI_PAIR::new(
-        get_pair(usdt_addr(), weth_addr()).await,
+        get_pair(usdt_addr(), weth_addr()).await?,
         readonly_http_provider(),
     );
-    let reserves_return = usdt_pair
-        .getReserves()
-        .call()
-        .await
-        .expect("reserves failed");
+    let reserves_return = usdt_pair.getReserves().call().await?;
 
-    let token0 = usdt_pair.token0().call().await.expect("token0 failed")._0;
-    if token0 == weth_addr() {
+    let token0 = usdt_pair.token0().call().await?._0;
+    Ok(if token0 == weth_addr() {
         reserves_return._reserve1 * x.into() / reserves_return._reserve0
     } else {
         reserves_return._reserve0 * x.into() / reserves_return._reserve1
     }
-    .to::<u128>()
+    .to::<u128>())
 }
 pub fn get_project_signer() -> EthereumWallet {
     let project_pk = env::var("PROJECT_SIGNER").expect(".env PROJECT_SIGNER");
