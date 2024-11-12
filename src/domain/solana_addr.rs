@@ -5,6 +5,7 @@ use schemars::schema::{InstanceType, Schema, SchemaObject};
 use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::ops::{Deref, DerefMut};
+use std::str::FromStr;
 
 #[derive(
     OperationIo, Default, Debug, Clone, AsExpression, FromSqlRow, Copy, Hash, Eq, PartialEq,
@@ -70,12 +71,10 @@ impl FromSql<Text, Pg> for SolAddr {
     fn from_sql(
         bytes: <Pg as diesel::backend::Backend>::RawValue<'_>,
     ) -> deserialize::Result<Self> {
-        <String as FromSql<VarChar, Pg>>::from_sql(bytes).map(|s| {
-            SolAddr(
-                s.parse()
-                    .expect("Failed to parsing raw_sql_type to Ethereum address"),
-            )
-        })
+        let string = <String as FromSql<VarChar, Pg>>::from_sql(bytes)?;
+        let pubkey = Pubkey::from_str(&string).map_err(Box::new)?;
+
+        Ok(SolAddr(pubkey))
     }
 }
 
