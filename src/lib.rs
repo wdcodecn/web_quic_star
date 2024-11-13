@@ -2,9 +2,6 @@
 #![feature(negative_impls)]
 
 use crate::api_doc::errors::AppError;
-use diesel::pg::PgConnection;
-use diesel::r2d2::{ConnectionManager, Pool};
-use std::env;
 use tracing::error;
 
 pub mod api_auth;
@@ -34,18 +31,6 @@ pub fn set_env() {
         tracing::info!("profile :{} is active", "release");
         dotenvy::from_filename("env_prod.env").expect("no env_prod.env file");
     }
-}
-
-pub fn get_connection_pool() -> Pool<ConnectionManager<PgConnection>> {
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let manager = ConnectionManager::<PgConnection>::new(database_url);
-    // Refer to the `r2d2` documentation for more methods to use
-    // when building a connection pool
-    Pool::builder()
-        .max_size(10)
-        .test_on_check_out(true)
-        .build(manager)
-        .expect("Could not build connection pool")
 }
 
 pub fn set_log() {

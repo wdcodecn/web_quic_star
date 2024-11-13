@@ -4,15 +4,16 @@ use aide::axum::ApiRouter;
 use tracing::{error, info};
 use web_quic_star::api_auth::get_auth_layer;
 use web_quic_star::api_doc::{fallback, set_api_doc};
+use web_quic_star::db_models::setup_connection_pool;
 use web_quic_star::scheduled_task::set_scheduler;
-use web_quic_star::{api_auth, controller, get_connection_pool, set_env};
+use web_quic_star::{api_auth, controller, set_env};
 
 #[tokio::main]
 async fn main() {
     web_quic_star::set_log();
     set_env();
 
-    let connection_pool = get_connection_pool();
+    let connection_pool = setup_connection_pool();
     set_scheduler(connection_pool.clone()).await;
 
     aide::gen::extract_schemas(true);

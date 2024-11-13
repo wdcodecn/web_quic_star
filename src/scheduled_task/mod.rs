@@ -4,7 +4,7 @@ use diesel::PgConnection;
 use r2d2::{Pool, PooledConnection};
 use std::future::Future;
 use tokio_cron_scheduler::{Job, JobScheduler};
-use tracing::{error, info};
+use tracing::{debug, error, info};
 
 pub async fn add_async_cron<R>(
     sched: &JobScheduler,
@@ -21,7 +21,7 @@ pub async fn add_async_cron<R>(
                 Box::pin(async move {
                     match task(conn).await {
                         Ok(_) => {
-                            info!("cron task succeed");
+                            debug!("cron task succeed");
                         }
                         Err(e) => {
                             error!("cron task failed: {}", e);
