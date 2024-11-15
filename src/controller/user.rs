@@ -15,7 +15,6 @@ use aide::axum::ApiRouter;
 use axum_login::permission_required;
 
 use diesel::r2d2::ConnectionManager;
-use diesel::PgConnection;
 use r2d2::Pool;
 
 use crate::api_auth::login_impl::AuthBackend;

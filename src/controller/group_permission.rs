@@ -27,7 +27,6 @@ use aide::axum::ApiRouter;
 use axum::extract::Path;
 use axum_login::permission_required;
 use diesel::r2d2::{ConnectionManager, Pool};
-use diesel::PgConnection;
 
 pub fn web_routes(conn_pool: ConnPool) -> ApiRouter {
     let router_add = ApiRouter::new().api_route(

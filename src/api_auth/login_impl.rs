@@ -17,7 +17,7 @@ use chrono::DateTime;
 use diesel::associations::HasTable;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
-use diesel::{PgConnection, QueryDsl, RunQueryDsl, SelectableHelper};
+use diesel::{QueryDsl, RunQueryDsl, SelectableHelper};
 use password_auth::verify_password;
 use schemars::JsonSchema;
 use serde::Deserialize;

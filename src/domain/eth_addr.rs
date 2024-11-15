@@ -72,23 +72,23 @@ impl JsonSchema for EthAddr {
         .into()
     }
 }
+use crate::db_models::DbType;
 use diesel::deserialize::{self, FromSql, FromSqlRow};
 use diesel::expression::AsExpression;
-use diesel::pg::Pg;
 use diesel::serialize::{self, Output, ToSql};
 use diesel::sql_types::*;
 
-impl ToSql<Text, Pg> for EthAddr {
-    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
-        <String as ToSql<VarChar, Pg>>::to_sql(&self.0.to_string(), &mut out.reborrow())
+impl ToSql<Text, DbType> for EthAddr {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, DbType>) -> serialize::Result {
+        <String as ToSql<VarChar, DbType>>::to_sql(&self.0.to_string(), &mut out.reborrow())
     }
 }
 
-impl FromSql<Text, Pg> for EthAddr {
+impl FromSql<Text, DbType> for EthAddr {
     fn from_sql(
-        bytes: <Pg as diesel::backend::Backend>::RawValue<'_>,
+        bytes: <DbType as diesel::backend::Backend>::RawValue<'_>,
     ) -> deserialize::Result<Self> {
-        let string = <String as FromSql<VarChar, Pg>>::from_sql(bytes)?;
+        let string = <String as FromSql<VarChar, DbType>>::from_sql(bytes)?;
         let addr = Address::from_str(&string).map_err(Box::new)?;
 
         Ok(EthAddr(addr))

@@ -53,5 +53,3 @@ use aide::axum::ApiRouter;
 use axum::extract::Path;
 use axum_login::permission_required;
 use diesel::r2d2::{ConnectionManager, Pool};
-use diesel::PgConnection;
-

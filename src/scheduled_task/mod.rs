@@ -1,8 +1,7 @@
-use crate::db_models::ConnPool;
+use crate::db_models::{Conn, ConnPool};
 use crate::AppRes;
 use diesel::r2d2::ConnectionManager;
-use diesel::PgConnection;
-use r2d2::{Pool, PooledConnection};
+use r2d2::PooledConnection;
 use std::future::Future;
 use tokio_cron_scheduler::{Job, JobScheduler};
 use tracing::{debug, error, info};
@@ -11,7 +10,7 @@ pub async fn add_async_cron<R>(
     sched: &JobScheduler,
     pool: ConnPool,
     cron: &str,
-    task: fn(PooledConnection<ConnectionManager<PgConnection>>) -> R,
+    task: fn(PooledConnection<ConnectionManager<Conn>>) -> R,
 ) where
     R: Future<Output = AppRes<()>> + Sized + Send + 'static,
 {
@@ -35,7 +34,7 @@ pub async fn add_async_cron<R>(
         .await
         .expect("cannot join job");
 }
-pub async fn example(mut conn: PooledConnection<ConnectionManager<PgConnection>>) -> AppRes<()> {
+pub async fn example(mut conn: PooledConnection<ConnectionManager<Conn>>) -> AppRes<()> {
     Ok(())
 }
 

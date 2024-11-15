@@ -129,7 +129,6 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
         use aide::axum::ApiRouter;
         use axum::extract::{Path};
         use diesel::r2d2::{ConnectionManager, Pool};
-        use diesel::{ PgConnection};
         use crate::controller::Compare;
         use crate::controller::Filter;
         use axum_login::permission_required;
@@ -154,7 +153,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
             use crate::api_doc::extractors::Json;
             use axum::extract::State;
             use diesel::r2d2::{ConnectionManager, Pool};
-            use diesel::{ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl, SelectableHelper};
+            use diesel::{ExpressionMethods,  QueryDsl, RunQueryDsl, SelectableHelper};
             use crate::api_doc::errors::AppError;
 
             pub fn get_routers() -> (
