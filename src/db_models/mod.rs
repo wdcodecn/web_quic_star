@@ -10,8 +10,10 @@ pub mod user;
 
 #[cfg(feature = "postgres")]
 pub type DbType = diesel::pg::Pg;
+pub type ConnPool = Pool<ConnectionManager<Conn>>;
+pub type Conn = PgConnection;
 
-pub fn setup_connection_pool() -> Pool<ConnectionManager<PgConnection>> {
+pub fn setup_connection_pool() -> ConnPool {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let manager = ConnectionManager::<PgConnection>::new(database_url);
     // Refer to the `r2d2` documentation for more methods to use

@@ -133,7 +133,8 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
         use crate::controller::Compare;
         use crate::controller::Filter;
         use axum_login::permission_required;
-        pub fn web_routes(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRouter {
+        use crate::db_models::ConnPool;
+        pub fn web_routes(conn_pool: ConnPool) -> ApiRouter {
             let (router_add, router_read, router_update, router_delete) = web::get_routers();
 
             router_add
@@ -157,10 +158,10 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
             use crate::api_doc::errors::AppError;
 
             pub fn get_routers() -> (
-                ApiRouter<Pool<ConnectionManager<PgConnection>>>,
-                ApiRouter<Pool<ConnectionManager<PgConnection>>>,
-                ApiRouter<Pool<ConnectionManager<PgConnection>>>,
-                ApiRouter<Pool<ConnectionManager<PgConnection>>>,
+                ApiRouter<ConnPool>,
+                ApiRouter<ConnPool>,
+                ApiRouter<ConnPool>,
+                ApiRouter<ConnPool>,
             ) {
             let router_add = ApiRouter::new().api_route(
                 concat!("/",stringify!(#create)),
@@ -201,7 +202,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
             }
 
             pub async fn create_entity(
-                State(pool): State<Pool<ConnectionManager<PgConnection>>>,
+                State(pool): State<ConnPool>,
                 Json(new_entity): Json<#new_model>,
             ) -> Result<Json<#model>, AppError> {
                 let mut connection = pool.get()?;
@@ -215,7 +216,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
             }
 
             pub async fn update_entity_by_id(
-                State(pool): State<Pool<ConnectionManager<PgConnection>>>,
+                State(pool): State<ConnPool>,
                 Path(id_param): Path<i64>,
                 Json(new): Json<#new_model>,
             ) -> Result<Json<#model>, AppError> {
@@ -228,7 +229,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
             }
 
             pub async fn get_entity_by_id(
-                State(pool): State<Pool<ConnectionManager<PgConnection>>>,
+                State(pool): State<ConnPool>,
                 Path(id_param): Path<i64>,
             ) -> Result<Json<#model>, AppError> {
                 let mut connection = pool.get()?;
@@ -240,7 +241,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
             }
 
             pub async fn delete_entity_by_id(
-                State(pool): State<Pool<ConnectionManager<PgConnection>>>,
+                State(pool): State<ConnPool>,
                 Path(id_param): Path<i64>,
             ) -> Result<Json<#model>, AppError> {
                 let mut connection = pool.get()?;
@@ -252,7 +253,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
             }
 
             pub async fn get_entity_page(
-                State(pool): State<Pool<ConnectionManager<PgConnection>>>,
+                State(pool): State<ConnPool>,
                 Json(page): Json<PageParam<#builder_ident>>,
             ) -> Result<Json<PageRes<#model, #builder_ident>>, AppError> {
                 let mut connection = pool.get()?;

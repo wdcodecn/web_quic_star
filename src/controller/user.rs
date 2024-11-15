@@ -23,9 +23,10 @@ use crate::api_doc::{default_resp_docs, empty_resp_docs};
 use crate::db_models;
 use crate::db_models::user::web::get_routers;
 use crate::db_models::user::User;
+use crate::db_models::ConnPool;
 use crate::schema::users::dsl::users;
 
-pub fn web_routes2(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRouter {
+pub fn web_routes2(conn_pool: ConnPool) -> ApiRouter {
     let (router_add, router_read, router_update, router_delete) = get_routers();
     let modify_password = ApiRouter::new().api_route(
         "/modify_password",
@@ -46,7 +47,7 @@ struct ModifyPassword {
     new_password: String,
 }
 async fn modify_password(
-    State(pool): State<Pool<ConnectionManager<PgConnection>>>,
+    State(pool): State<ConnPool>,
     auth_session: AuthSession<AuthBackend>,
     Json(modify_password): Json<ModifyPassword>,
 ) -> AppRes<String> {

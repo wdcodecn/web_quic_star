@@ -1,14 +1,11 @@
 use aide::axum::ApiRouter;
 use axum_login::permission_required;
 
-use diesel::r2d2::ConnectionManager;
-use diesel::PgConnection;
-use r2d2::Pool;
-
 use crate::api_auth::login_impl::AuthBackend;
 use crate::db_models::permission::web::get_routers;
+use crate::db_models::ConnPool;
 
-pub fn web_routes2(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRouter {
+pub fn web_routes2(conn_pool: ConnPool) -> ApiRouter {
     let (router_add, router_read, router_update, router_delete) = get_routers();
 
     router_add

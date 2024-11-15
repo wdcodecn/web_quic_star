@@ -8,9 +8,6 @@ use diesel::{AsChangeset, Identifiable, Insertable, Queryable, Selectable};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-
-
-
 #[allow(clippy::all)]
 #[derive(Deserialize, Serialize, JsonSchema, Default, Clone)]
 pub struct GroupsPermissionBuilder {
@@ -22,6 +19,8 @@ use crate::api_doc::{default_resp_docs, empty_resp_docs};
 use crate::controller::Compare;
 use crate::controller::Filter;
 use crate::controller::LOGIN_URL;
+use crate::db_models::group_permission::GroupsPermission;
+use crate::db_models::ConnPool;
 use crate::schema::groups_permissions::dsl::groups_permissions;
 use aide::axum::routing::{delete_with, get_with, post_with, put_with};
 use aide::axum::ApiRouter;
@@ -29,9 +28,8 @@ use axum::extract::Path;
 use axum_login::permission_required;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::PgConnection;
-use crate::db_models::group_permission::GroupsPermission;
 
-pub fn web_routes(conn_pool: Pool<ConnectionManager<PgConnection>>) -> ApiRouter {
+pub fn web_routes(conn_pool: ConnPool) -> ApiRouter {
     let router_add = ApiRouter::new().api_route(
         "/create_entity",
         post_with(web::create_entity, empty_resp_docs),
@@ -63,13 +61,12 @@ mod web {
     use crate::api_doc::errors::AppError;
     use crate::api_doc::extractors::Json;
     use crate::controller::{PageParam, PageRes};
-    use axum::extract::State;
-    use diesel::r2d2::{ConnectionManager, Pool};
-    use diesel::{ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl, SelectableHelper};
     use crate::db_models::group_permission::NewGroupsPermission;
+    use axum::extract::State;
+    use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 
     pub async fn create_entity(
-        State(pool): State<Pool<ConnectionManager<PgConnection>>>,
+        State(pool): State<ConnPool>,
         Json(new_entity): Json<NewGroupsPermission>,
     ) -> Result<Json<GroupsPermission>, AppError> {
         let mut connection = pool.get()?;
@@ -81,7 +78,7 @@ mod web {
     }
 
     pub async fn get_entity_by_id(
-        State(pool): State<Pool<ConnectionManager<PgConnection>>>,
+        State(pool): State<ConnPool>,
         Path(id_param): Path<(i64, i64)>,
     ) -> Result<Json<GroupsPermission>, AppError> {
         let mut connection = pool.get()?;
@@ -92,7 +89,7 @@ mod web {
         Ok(Json(result))
     }
     pub async fn delete_entity_by_id(
-        State(pool): State<Pool<ConnectionManager<PgConnection>>>,
+        State(pool): State<ConnPool>,
         Path(id_param): Path<(i64, i64)>,
     ) -> Result<Json<GroupsPermission>, AppError> {
         let mut connection = pool.get()?;
@@ -103,7 +100,7 @@ mod web {
         Ok(Json(result))
     }
     pub async fn get_entity_page(
-        State(pool): State<Pool<ConnectionManager<PgConnection>>>,
+        State(pool): State<ConnPool>,
         Json(page): Json<PageParam<GroupsPermissionBuilder>>,
     ) -> Result<Json<PageRes<GroupsPermission, GroupsPermissionBuilder>>, AppError> {
         let mut connection = pool.get()?;

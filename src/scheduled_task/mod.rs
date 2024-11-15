@@ -1,3 +1,4 @@
+use crate::db_models::ConnPool;
 use crate::AppRes;
 use diesel::r2d2::ConnectionManager;
 use diesel::PgConnection;
@@ -8,7 +9,7 @@ use tracing::{debug, error, info};
 
 pub async fn add_async_cron<R>(
     sched: &JobScheduler,
-    pool: Pool<ConnectionManager<PgConnection>>,
+    pool: ConnPool,
     cron: &str,
     task: fn(PooledConnection<ConnectionManager<PgConnection>>) -> R,
 ) where
@@ -38,7 +39,7 @@ pub async fn example(mut conn: PooledConnection<ConnectionManager<PgConnection>>
     Ok(())
 }
 
-pub async fn set_scheduler(pool: Pool<ConnectionManager<PgConnection>>) {
+pub async fn set_scheduler(pool: ConnPool) {
     let sched = JobScheduler::new()
         .await
         .expect("cannot create jobs scheduler");

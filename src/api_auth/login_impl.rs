@@ -1,4 +1,7 @@
 use crate::api_doc::errors::AppError;
+use crate::db_models::permission::Permission;
+use crate::db_models::user::{NewUser, User};
+use crate::db_models::ConnPool;
 #[cfg(feature = "eth_mode")]
 use crate::domain::eth_addr::EthAddr;
 use crate::impl_from;
@@ -23,8 +26,6 @@ use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 use std::string::ToString;
 use std::time::SystemTime;
-use crate::db_models::permission::Permission;
-use crate::db_models::user::{NewUser, User};
 
 const LOGIN_MESSAGE: &str = "welcome";
 pub const DEFAULT_TENANTRY: &str = "default";
@@ -36,7 +37,7 @@ pub const SUPER_USER: i64 = -2;
 
 #[derive(Debug, Clone)]
 pub struct AuthBackend {
-    db: Pool<ConnectionManager<PgConnection>>,
+    db: ConnPool,
 }
 
 #[cfg(not(feature = "eth_mode"))]
@@ -71,7 +72,7 @@ impl AuthUser for User {
 }
 
 impl AuthBackend {
-    pub fn new(pool: Pool<ConnectionManager<PgConnection>>) -> Self {
+    pub fn new(pool: ConnPool) -> Self {
         Self { db: pool }
     }
 }
