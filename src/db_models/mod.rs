@@ -1,17 +1,26 @@
 use diesel::r2d2::ConnectionManager;
 use r2d2::Pool;
 use std::env;
+use diesel::{define_sql_function, dsl, BoxableExpression, QueryableByName};
+use diesel::expression::AsExpression;
 
 pub mod group;
 pub mod group_permission;
 pub mod permission;
 pub mod user;
+pub mod pagination;
 
 #[cfg(feature = "postgres")]
 pub type DbType = diesel::pg::Pg;
 
 #[cfg(feature = "postgres")]
 pub type ConnPool = Pool<ConnectionManager<Conn>>;
+
+#[derive(QueryableByName)]
+pub struct Count {
+    #[sql_type = "diesel::sql_types::BigInt"]
+    pub count: i64,
+}
 
 #[cfg(feature = "postgres")]
 pub type Conn = diesel::PgConnection;
