@@ -73,9 +73,10 @@ impl From<JsonSchemaRejection> for AppError {
 impl<T: Error> From<T> for AppError {
     #[track_caller]
     fn from(value: T) -> Self {
+        let app_error = AppError::new(format!("{value}", ));
         let caller_location = std::panic::Location::caller();
-        tracing::error!("Position: {caller_location} ; Error:{value}",);
-        AppError::new(format!("error: {}", value))
+        tracing::error!("Position:{caller_location}; Error:{value}; Error ID:{};",app_error.error_id);
+        app_error
     }
 }
 

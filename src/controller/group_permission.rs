@@ -60,13 +60,12 @@ mod web {
     use crate::api_doc::errors::AppError;
     use crate::api_doc::extractors::Json;
     use crate::controller::{PageParam, PageRes};
-    use crate::db_models::group_permission::NewGroupsPermission;
     use axum::extract::State;
     use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 
     pub async fn create_entity(
         State(pool): State<ConnPool>,
-        Json(new_entity): Json<NewGroupsPermission>,
+        Json(new_entity): Json<GroupsPermission>,
     ) -> Result<Json<GroupsPermission>, AppError> {
         let mut connection = pool.get()?;
         let result = diesel::insert_into(groups_permissions)

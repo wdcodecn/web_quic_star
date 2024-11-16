@@ -35,6 +35,7 @@ pub fn set_env() {
 
 pub fn set_log() {
     tracing_subscriber::fmt()
+        .pretty()
         .with_max_level(tracing::Level::INFO)
         .event_format(
             tracing_subscriber::fmt::format()

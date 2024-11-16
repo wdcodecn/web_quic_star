@@ -8,14 +8,7 @@ use diesel::{AsChangeset, Identifiable, Insertable, Queryable, Selectable};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Queryable, Debug, Selectable, Serialize, Deserialize, JsonSchema, Insertable)]
-#[diesel(primary_key(group_id, permission_id))]
-#[diesel(table_name = crate::schema::groups_permissions)]
-#[diesel(check_for_backend(super::DbType))]
-pub struct NewGroupsPermission {
-    pub group_id: i64,
-    pub permission_id: i64,
-}
+
 
 #[derive(
     Queryable,
@@ -27,6 +20,7 @@ pub struct NewGroupsPermission {
     Deserialize,
     JsonSchema,
     Default,
+    Insertable
 )]
 #[diesel(primary_key(group_id, permission_id))]
 #[diesel(table_name = crate::schema::groups_permissions)]
