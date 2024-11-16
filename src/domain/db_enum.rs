@@ -1,20 +1,30 @@
-// #[macro_use] extern crate diesel;
-use bigdecimal::BigDecimal;
-use chrono::{DateTime, Utc};
-use diesel::{AsChangeset, Insertable, Queryable, Selectable};
+use derive_more::{Display, Error};
+use diesel::sql_types::VarChar;
+use diesel::{AsExpression, FromSqlRow};
+use diesel_enum::DbEnum;
 use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 
-// #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, diesel_derive_enum::DbEnum)]
-// #[ExistingTypePath = "crate::schema::sql_types::SellBuy"]
-// pub enum SellBuy {
-//     Sell,
-//     Buy,
-// }
-// #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, diesel_derive_enum::DbEnum)]
-// #[ExistingTypePath = "crate::schema::sql_types::OrderType"]
-// pub enum OrderType {
-//     Trading,
-//     Pending,
-//     Following,
-// }
+#[derive(Display,Error,Debug)]
+pub struct EnumConvertError {
+    msg: String,
+}
+
+
+impl EnumConvertError {
+    fn not_found(msg: String) -> Self {
+        Self {
+            msg,
+        }
+    }
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, AsExpression, FromSqlRow,DbEnum,JsonSchema)]
+#[diesel(sql_type = VarChar)]
+#[diesel_enum(error_fn = EnumConvertError::not_found)]
+#[diesel_enum(error_type = EnumConvertError)]
+pub enum Status {
+    /// Will be represented as `"ready"`.
+    Ready,
+    /// Will be represented as `"pending"`.
+    Pending,
+}
+

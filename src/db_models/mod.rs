@@ -1,8 +1,7 @@
 use diesel::r2d2::ConnectionManager;
 use r2d2::Pool;
 use std::env;
-use diesel::{ BoxableExpression, QueryableByName};
-use diesel::pg::Pg;
+use diesel::{QueryableByName};
 use diesel::prelude::*;
 use diesel::query_builder::*;
 use diesel::query_dsl::methods::LoadQuery;
@@ -15,7 +14,6 @@ pub mod user;
 #[cfg(feature = "postgres")]
 pub type DbType = diesel::pg::Pg;
 
-#[cfg(feature = "postgres")]
 pub type ConnPool = Pool<ConnectionManager<Conn>>;
 
 #[derive(QueryableByName)]
@@ -93,11 +91,12 @@ impl<T: Query> Query for Paginated<T> {
 
 impl<T> RunQueryDsl<PgConnection> for Paginated<T> {}
 
-impl<T> QueryFragment<Pg> for Paginated<T>
+#[cfg(feature = "postgres")]
+impl<T> QueryFragment<DbType> for Paginated<T>
 where
-    T: QueryFragment<Pg>,
+    T: QueryFragment<DbType>,
 {
-    fn walk_ast<'b>(&'b self, mut out: AstPass<'_, 'b, Pg>) -> QueryResult<()> {
+    fn walk_ast<'b>(&'b self, mut out: AstPass<'_, 'b, DbType>) -> QueryResult<()> {
         out.push_sql("SELECT *, COUNT(1) OVER () FROM (");
         self.query.walk_ast(out.reborrow())?;
         out.push_sql(") t where t.is_delete = false LIMIT ");

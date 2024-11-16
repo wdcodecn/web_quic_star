@@ -19,3 +19,4 @@
 pub mod eth_addr;
 #[cfg(feature = "solana_mode")]
 pub mod solana_addr;
+pub mod db_enum;

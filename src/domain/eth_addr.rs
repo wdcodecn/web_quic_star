@@ -36,7 +36,7 @@ impl<'de> Deserialize<'de> for EthAddr {
                     Error::custom(format!("deserialize value:`{string}` failed,err:{err}"))
                 })
             })
-            .map(|x| EthAddr(x))
+            .map(EthAddr)
     }
 }
 
@@ -61,7 +61,7 @@ impl DerefMut for EthAddr {
 
 impl JsonSchema for EthAddr {
     fn schema_name() -> String {
-        "SolanaAddr".to_owned()
+        "EthAddr".to_owned()
     }
 
     fn json_schema(gen: &mut SchemaGenerator) -> Schema {
