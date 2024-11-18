@@ -1,3 +1,6 @@
+use crate::db_models::user::User;
+use crate::schema::users::dsl::users;
+use crate::set_env;
 use diesel::prelude::*;
 use diesel::query_builder::*;
 use diesel::query_dsl::methods::LoadQuery;
@@ -6,6 +9,7 @@ use diesel::sql_types::BigInt;
 use diesel::QueryableByName;
 use r2d2::Pool;
 use std::env;
+
 pub mod group;
 pub mod group_permission;
 pub mod permission;
@@ -37,8 +41,6 @@ pub fn setup_connection_pool() -> ConnPool {
         .expect("Could not build connection pool")
 }
 
-/// example: let x = groups_permissions.select(GroupsPermission::as_select())
-/// .paginate(3,Some(10)).load_and_count_pages(&mut connection)?;
 pub trait Paginate: Sized {
     fn paginate(self, page_no: i64, page_size: i64) -> Paginated<Self>;
 }
@@ -127,4 +129,19 @@ where
 
         Ok(())
     }
+}
+
+#[tokio::test]
+async fn test() {
+    set_env();
+    let connection_pool = setup_connection_pool();
+    let mut pooled_connection = connection_pool.get().unwrap();
+    let x = users
+        .select(User::as_select())
+        .logic_delete_query()
+        .paginate(1, 10)
+        .load_and_count_pages(&mut pooled_connection)
+        .unwrap();
+
+    println!("{:?}", x);
 }
