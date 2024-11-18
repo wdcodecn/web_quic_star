@@ -82,7 +82,6 @@ impl<T: Query> Query for Paginated<T> {
 
 impl<T> RunQueryDsl<Conn> for Paginated<T> {}
 
-#[cfg(feature = "postgres")]
 impl<T> QueryFragment<DbType> for Paginated<T>
 where
     T: QueryFragment<DbType>,
@@ -94,6 +93,38 @@ where
         out.push_bind_param::<BigInt, _>(&self.per_page)?;
         out.push_sql(" OFFSET ");
         out.push_bind_param::<BigInt, _>(&self.offset)?;
+        Ok(())
+    }
+}
+pub trait LogicDeleteQuery: Sized {
+    fn logic_delete_query(self) -> LogicDeleteStatement<Self>;
+}
+
+#[derive(Debug, Clone, Copy, QueryId)]
+pub struct LogicDeleteStatement<T> {
+    query: T,
+}
+
+impl<T> LogicDeleteQuery for T {
+    fn logic_delete_query(self) -> LogicDeleteStatement<Self> {
+        LogicDeleteStatement { query: self }
+    }
+}
+impl<T: Query> Query for LogicDeleteStatement<T> {
+    type SqlType = T::SqlType;
+}
+
+impl<T> RunQueryDsl<Conn> for LogicDeleteStatement<T> {}
+
+impl<T> QueryFragment<DbType> for LogicDeleteStatement<T>
+where
+    T: QueryFragment<DbType>,
+{
+    fn walk_ast<'b>(&'b self, mut out: AstPass<'_, 'b, DbType>) -> QueryResult<()> {
+        out.push_sql("SELECT * FROM (");
+        self.query.walk_ast(out.reborrow())?;
+        out.push_sql(") t  where t.is_delete = false ");
+
         Ok(())
     }
 }
