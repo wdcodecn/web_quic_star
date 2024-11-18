@@ -6,9 +6,9 @@ sudo apt install build-essential
 
 sudo apt-get install libpq-dev
 
-cargo install diesel_cli
+cargo install diesel_cli --no-default-features --features postgres
 
-cargo install diesel_ext
+cargo install diesel_cli_ext
 
 # Usage
 
@@ -21,6 +21,8 @@ create table in [schema.rs](schema.rs)
 diesel migration generate --diff-schema create_table
 
 diesel_ext -m -r
+
+diesel migration run
 
 add             
 #[diesel(table_name = crate::schema::permissions)]
