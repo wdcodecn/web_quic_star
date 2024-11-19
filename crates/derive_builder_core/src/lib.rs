@@ -105,16 +105,16 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
     }
 
     let f = quote!(
-        use crate::api_auth::login_impl::AuthBackend;
-        use crate::controller::LOGIN_URL;
-        use crate::api_doc::{default_resp_docs, empty_resp_docs};
+        use crate::framework::auth::AuthBackend;
+        use crate::framework::api::LOGIN_URL;
+        use crate::framework::api_doc::{default_resp_docs, empty_resp_docs};
         use crate::schema::#schema_s::dsl::#schema_s;
         use aide::axum::routing::{delete_with, get_with, post_with, put_with};
         use aide::axum::ApiRouter;
         use axum::extract::{Path};
         use diesel::r2d2::{ConnectionManager, Pool};
-        use crate::controller::Compare;
-        use crate::controller::Filter;
+        use crate::framework::api::Compare;
+        use crate::framework::api::Filter;
         use axum_login::permission_required;
         use crate::db_models::ConnPool;
         pub fn web_routes(conn_pool: ConnPool) -> ApiRouter {
@@ -132,14 +132,14 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
 
 
         pub mod web {
-            use crate::controller::{PageParam, PageRes};
+            use crate::framework::api::{PageParam, PageRes};
             use super::*;
-            use crate::api_doc::extractors::Json;
+            use crate::framework::api_doc::extractors::Json;
             use axum::extract::State;
             use diesel::r2d2::{ConnectionManager, Pool};
             use diesel::{ExpressionMethods,  QueryDsl, RunQueryDsl, SelectableHelper};
-            use crate::api_doc::errors::AppError;
-            use crate::db_models::{LogicDeleteQuery, Paginate};
+            use crate::framework::api_doc::errors::AppError;
+            use crate::framework::db::{LogicDeleteQuery, Paginate};
 
             pub fn get_routers() -> (
                 ApiRouter<ConnPool>,
