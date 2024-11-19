@@ -1,5 +1,5 @@
-use crate::api_doc::docs::docs_routes;
-use crate::api_doc::errors::AppError;
+use crate::framework::api_doc::docs::docs_routes;
+use crate::framework::api_doc::errors::AppError;
 use aide::axum::ApiRouter;
 use aide::openapi::OpenApi;
 use aide::transform::{TransformOpenApi, TransformOperation};

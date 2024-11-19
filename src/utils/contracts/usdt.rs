@@ -9,7 +9,7 @@ sol!(
     #[allow(missing_docs)]
     #[sol(rpc)]
     USDT,
-    "src/contracts/abis/usdt.json"
+    "src/utils/contracts/abis/usdt.json"
 );
 
 pub fn usdt_addr() -> Address {

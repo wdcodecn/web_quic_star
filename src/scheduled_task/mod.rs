@@ -5,7 +5,6 @@ use r2d2::PooledConnection;
 use std::future::Future;
 use tokio_cron_scheduler::{Job, JobScheduler};
 use tracing::{debug, error, info};
-
 pub async fn add_async_cron<R>(
     sched: &JobScheduler,
     pool: ConnPool,

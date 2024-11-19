@@ -11,7 +11,7 @@ use aide::{
 };
 use axum::{response::IntoResponse, Extension};
 
-use crate::api_doc::extractors::Json;
+use crate::framework::api_doc::extractors::Json;
 
 #[cfg(not(feature = "dev"))]
 pub fn docs_routes() -> ApiRouter {

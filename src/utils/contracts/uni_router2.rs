@@ -3,12 +3,10 @@
 // use alloy::{node_bindings::Anvil, primitives::address, providers::ProviderBuilder, sol};
 // use eyre::Result;
 
+use std::env;
 use std::error::Error;
 use std::str::FromStr;
 
-use crate::contracts::readonly_http_provider;
-use crate::contracts::uni_router2::{uni_router2_addr, UNI_ROUTER2};
-use crate::AppRes;
 use alloy::primitives::Address;
 use alloy::sol;
 
@@ -16,11 +14,15 @@ use alloy::sol;
 sol!(
     #[allow(missing_docs)]
     #[sol(rpc)]
-    UNI_FACTORY,
-    "src/contracts/abis/uni_factory.json"
+    UNI_ROUTER2,
+    "src/utils/contracts/abis/uni_router2.json"
 );
 
-pub async fn uni_factory_addr() -> AppRes<Address> {
-    let uni_router2 = UNI_ROUTER2::new(uni_router2_addr(), readonly_http_provider());
-    Ok(uni_router2.factory().call().await?._0)
+pub fn uni_router2_addr() -> Address {
+    Address::from_str(
+        env::var("UNI_ROUTER2_ADDR")
+            .expect(".env UNI_ROUTER2_ADDR")
+            .as_str(),
+    )
+    .expect(".env UNI_ROUTER2_ADDR")
 }

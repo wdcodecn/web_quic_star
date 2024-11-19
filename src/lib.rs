@@ -1,22 +1,17 @@
 #![feature(backtrace_frames)]
 #![feature(negative_impls)]
 
-use crate::api_doc::errors::AppError;
+use framework::api_doc::errors::AppError;
 use tracing::error;
 
-pub mod api_auth;
-pub mod api_doc;
-pub mod api_wrapper;
-#[cfg(feature = "eth_mode")]
-pub mod contracts;
-
-#[cfg(feature = "postgres")]
-pub mod controller;
-#[cfg(feature = "postgres")]
+pub mod api;
 pub mod db_models;
 pub mod domain;
+pub mod framework;
+pub mod router;
 pub mod scheduled_task;
 pub mod schema;
+pub mod utils;
 
 type AppRes<T> = Result<T, AppError>;
 

@@ -6,8 +6,8 @@
 use std::error::Error;
 use std::str::FromStr;
 
-use crate::contracts::readonly_http_provider;
-use crate::contracts::uni_factory::{uni_factory_addr, UNI_FACTORY};
+use crate::utils::contracts::readonly_http_provider;
+use crate::utils::contracts::uni_factory::{uni_factory_addr, UNI_FACTORY};
 
 use alloy::primitives::Address;
 
@@ -19,7 +19,7 @@ sol!(
     #[allow(missing_docs)]
     #[sol(rpc)]
     UNI_PAIR,
-    "src/contracts/abis/uni_pair.json"
+    "src/utils/contracts/abis/uni_pair.json"
 );
 
 pub async fn get_pair(token_a: Address, token_b: Address) -> AppRes<Address> {

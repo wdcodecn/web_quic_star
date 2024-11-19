@@ -1,5 +1,5 @@
-use crate::api_doc::errors::AppError;
-use crate::api_doc::extractors::Json;
+use crate::framework::api_doc::errors::AppError;
+use crate::framework::api_doc::extractors::Json;
 use crate::AppRes;
 use aide::OperationIo;
 use axum::extract::State;
@@ -17,35 +17,20 @@ use axum_login::permission_required;
 use diesel::r2d2::ConnectionManager;
 use r2d2::Pool;
 
-use crate::api_auth::login_impl::AuthBackend;
-use crate::api_doc::{default_resp_docs, empty_resp_docs};
 use crate::db_models;
 use crate::db_models::user::web::get_routers;
 use crate::db_models::user::User;
 use crate::db_models::ConnPool;
+use crate::framework::api_doc::{default_resp_docs, empty_resp_docs};
+use crate::framework::auth::AuthBackend;
 use crate::schema::users::dsl::users;
-
-pub fn web_routes2(conn_pool: ConnPool) -> ApiRouter {
-    let (router_add, router_read, router_update, router_delete) = get_routers();
-    let modify_password = ApiRouter::new().api_route(
-        "/modify_password",
-        post_with(modify_password, default_resp_docs::<String>),
-    );
-    router_add
-        .route_layer(permission_required!(AuthBackend, "users_add"))
-        .merge(router_read.route_layer(permission_required!(AuthBackend, "users_read")))
-        .merge(router_delete.route_layer(permission_required!(AuthBackend, "users_delete")))
-        .merge(router_update.route_layer(permission_required!(AuthBackend, "users_update")))
-        .merge(modify_password.route_layer(login_required!(AuthBackend)))
-        .with_state(conn_pool)
-}
 
 #[derive(Serialize, Deserialize, OperationIo, Debug, Default, JsonSchema)]
 struct ModifyPassword {
     old_password: String,
     new_password: String,
 }
-async fn modify_password(
+pub(crate) async fn modify_password(
     State(pool): State<ConnPool>,
     auth_session: AuthSession<AuthBackend>,
     Json(modify_password): Json<ModifyPassword>,

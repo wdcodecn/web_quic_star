@@ -1,17 +1,7 @@
-pub mod group;
-pub mod group_permission;
-pub mod permission;
-pub mod user;
-
-use aide::OperationIo;
 use diesel::QueryableByName;
-use schemars::gen::SchemaGenerator;
-use schemars::schema::{InstanceType, Schema, SchemaObject};
 use schemars::JsonSchema;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::str::FromStr;
+use serde::{Deserialize, Serialize};
 
-pub const LOGIN_URL: &str = "/auth/login";
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(default)]
 pub struct PageParam<T: Default> {
@@ -39,6 +29,9 @@ impl<T: Default> PageParam<T> {
         ((self.page_no - 1) * self.page_size, self.page_size)
     }
 }
+
+pub const LOGIN_URL: &str = "/auth/login";
+
 #[derive(QueryableByName)]
 pub struct Count {
     #[sql_type = "diesel::sql_types::BigInt"]

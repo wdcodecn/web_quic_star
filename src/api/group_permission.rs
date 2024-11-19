@@ -14,13 +14,13 @@ pub struct GroupsPermissionBuilder {
     pub group_id: ::derive_builder::export::core::option::Option<Filter<i64>>,
     pub permission_id: ::derive_builder::export::core::option::Option<Filter<i64>>,
 }
-use crate::api_auth::login_impl::AuthBackend;
-use crate::api_doc::{default_resp_docs, empty_resp_docs};
-use crate::controller::Compare;
-use crate::controller::Filter;
-use crate::controller::LOGIN_URL;
 use crate::db_models::group_permission::GroupsPermission;
 use crate::db_models::ConnPool;
+use crate::framework::api::Compare;
+use crate::framework::api::Filter;
+use crate::framework::api::LOGIN_URL;
+use crate::framework::api_doc::{default_resp_docs, empty_resp_docs};
+use crate::framework::auth::AuthBackend;
 use crate::schema::groups_permissions::dsl::groups_permissions;
 use aide::axum::routing::{delete_with, get_with, post_with, put_with};
 use aide::axum::ApiRouter;
@@ -28,39 +28,13 @@ use axum::extract::Path;
 use axum_login::permission_required;
 use diesel::r2d2::{ConnectionManager, Pool};
 
-pub fn web_routes(conn_pool: ConnPool) -> ApiRouter {
-    let router_add = ApiRouter::new().api_route(
-        "/create_entity",
-        post_with(web::create_entity, empty_resp_docs),
-    );
-    let router_read = ApiRouter::new()
-        .api_route(
-            "/get_entity_by_id/:group_id/:permission_id",
-            get_with(web::get_entity_by_id, default_resp_docs::<GroupsPermission>),
-        )
-        .api_route(
-            "/get_entity_page",
-            post_with(web::get_entity_page, empty_resp_docs),
-        );
-    let router_delete = ApiRouter::new().api_route(
-        "/delete_entity_by_id/:group_id/:permission_id",
-        delete_with(
-            web::delete_entity_by_id,
-            default_resp_docs::<GroupsPermission>,
-        ),
-    );
-    router_add
-        .route_layer(permission_required!(AuthBackend, "users_add"))
-        .merge(router_read.route_layer(permission_required!(AuthBackend, "users_read")))
-        .merge(router_delete.route_layer(permission_required!(AuthBackend, "users_delete")))
-        .with_state(conn_pool)
-}
-mod web {
+pub(crate) mod web {
     use super::*;
-    use crate::api_doc::errors::AppError;
-    use crate::api_doc::extractors::Json;
-    use crate::controller::{PageParam, PageRes};
-    use crate::db_models::{LogicDeleteQuery, Paginate};
+    use crate::framework::api::PageParam;
+    use crate::framework::api::PageRes;
+    use crate::framework::api_doc::errors::AppError;
+    use crate::framework::api_doc::extractors::Json;
+    use crate::framework::db::{LogicDeleteQuery, Paginate};
     use axum::extract::State;
     use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 

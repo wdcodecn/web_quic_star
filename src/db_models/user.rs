@@ -1,5 +1,5 @@
-use crate::api_doc::errors::AppError;
-use crate::api_doc::extractors::Json;
+use crate::framework::api_doc::errors::AppError;
+use crate::framework::api_doc::extractors::Json;
 use crate::AppRes;
 use aide::OperationIo;
 use axum::extract::State;
@@ -64,4 +64,3 @@ pub struct User {
     pub update_by: Option<i64>,
     pub is_delete: bool,
 }
-

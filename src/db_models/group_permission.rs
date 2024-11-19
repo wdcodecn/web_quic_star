@@ -8,8 +8,6 @@ use diesel::{AsChangeset, Identifiable, Insertable, Queryable, Selectable};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-
-
 #[derive(
     Queryable,
     Debug,
@@ -20,7 +18,7 @@ use serde::{Deserialize, Serialize};
     Deserialize,
     JsonSchema,
     Default,
-    Insertable
+    Insertable,
 )]
 #[diesel(primary_key(group_id, permission_id))]
 #[diesel(table_name = crate::schema::groups_permissions)]
@@ -36,11 +34,11 @@ pub struct GroupsPermissionBuilder {
     pub group_id: ::derive_builder::export::core::option::Option<Filter<i64>>,
     pub permission_id: ::derive_builder::export::core::option::Option<Filter<i64>>,
 }
-use crate::api_auth::login_impl::AuthBackend;
-use crate::api_doc::{default_resp_docs, empty_resp_docs};
-use crate::controller::Compare;
-use crate::controller::Filter;
-use crate::controller::LOGIN_URL;
+use crate::framework::api::Compare;
+use crate::framework::api::Filter;
+use crate::framework::api::LOGIN_URL;
+use crate::framework::api_doc::{default_resp_docs, empty_resp_docs};
+use crate::framework::auth::AuthBackend;
 use crate::schema::groups_permissions::dsl::groups_permissions;
 use aide::axum::routing::{delete_with, get_with, post_with, put_with};
 use aide::axum::ApiRouter;

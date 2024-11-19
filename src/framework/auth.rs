@@ -1,35 +1,44 @@
-use crate::api_doc::errors::AppError;
 use crate::db_models::permission::Permission;
-use crate::db_models::user::{NewUser, User};
+use crate::db_models::user::User;
 use crate::db_models::ConnPool;
-#[cfg(feature = "eth_mode")]
-use crate::domain::eth_addr::EthAddr;
+use crate::framework::api_doc::errors::AppError;
 use crate::impl_from;
-use crate::schema::groups::dsl::groups;
-use crate::schema::groups_permissions::dsl::groups_permissions;
-use crate::schema::groups_permissions::{group_id, permission_id};
-use crate::schema::permissions::dsl::permissions;
-use crate::schema::users::dsl::users;
-use crate::schema::users::username;
-use axum::async_trait;
-use axum_login::{AuthUser, AuthnBackend, AuthzBackend, UserId};
-use chrono::DateTime;
+use crate::schema::groups::table as groups;
+use crate::schema::groups_permissions::{group_id, permission_id, table as groups_permissions};
+use crate::schema::permissions::table as permissions;
+use crate::schema::users::{table as users, username};
+use alloy::primitives::SignatureError;
+use async_trait::async_trait;
+use axum_login::tower_sessions::cookie::time::Duration;
+use axum_login::tower_sessions::{Expiry, MemoryStore, SessionManagerLayer};
+use axum_login::{
+    AuthManagerLayer, AuthManagerLayerBuilder, AuthUser, AuthnBackend, AuthzBackend, UserId,
+};
 use diesel::associations::HasTable;
-use diesel::prelude::*;
-use diesel::r2d2::{ConnectionManager, Pool};
-use diesel::{QueryDsl, RunQueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, RunQueryDsl, SelectableHelper};
 use password_auth::verify_password;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use std::collections::HashSet;
-use std::fmt::{Debug, Display, Formatter};
-use std::str::FromStr;
-use std::string::ToString;
-use std::time::SystemTime;
+use std::fmt::{Display, Formatter};
+
+#[test]
+pub fn test() {
+    println!("{}", password_auth::generate_hash("1234qwer"));
+}
+
+pub fn get_auth_layer(connection_pool: ConnPool) -> AuthManagerLayer<AuthBackend, MemoryStore> {
+    let session_store = MemoryStore::default();
+    let session_layer = SessionManagerLayer::new(session_store)
+        .with_secure(false)
+        .with_expiry(Expiry::OnInactivity(Duration::days(1)));
+
+    let backend = AuthBackend::new(connection_pool);
+    AuthManagerLayerBuilder::new(backend, session_layer).build()
+}
 
 const LOGIN_MESSAGE: &str = "welcome";
 pub const DEFAULT_TENANTRY: &str = "default";
-
 pub const COMMON_USER_ROLE: i64 = -1;
 pub const COMMON_USER: i64 = -1;
 pub const SUPER_USER_ROLE: i64 = -2;
@@ -51,7 +60,7 @@ pub struct Credentials {
 #[cfg(feature = "eth_mode")]
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct Credentials {
-    pub user_addr: EthAddr,
+    pub user_addr: crate::domain::eth_addr::EthAddr,
     pub signature: String,
     pub next: Option<String>,
 }
@@ -79,12 +88,9 @@ impl AuthBackend {
 
 #[derive(Debug)]
 pub struct AuthError(AppError);
-impl_from!(diesel::result::Error);
-impl_from!(r2d2::Error);
-// impl_from!(alloy::hex::FromHexError, "address format error");
-#[cfg(feature = "eth_mode")]
-impl_from!(alloy::primitives::SignatureError);
+
 impl std::error::Error for AuthError {}
+
 impl Display for AuthError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "(+error:{})", self.0)
@@ -119,7 +125,11 @@ impl AuthnBackend for AuthBackend {
         &self,
         creds: Self::Credentials,
     ) -> Result<Option<Self::User>, Self::Error> {
+        use crate::db_models::user::NewUser;
         use alloy::signers::Signature;
+        use diesel::OptionalExtension;
+        use std::str::FromStr;
+        use std::time::SystemTime;
         let signature = Signature::from_str(&creds.signature)?;
         let recovered_addr = signature.recover_address_from_msg(LOGIN_MESSAGE)?;
         let user_addr = creds.user_addr.0;
@@ -177,11 +187,13 @@ impl From<&str> for AuthPermission {
         }
     }
 }
+
 impl From<String> for AuthPermission {
     fn from(name: String) -> Self {
         AuthPermission { name }
     }
 }
+
 #[async_trait]
 impl AuthzBackend for AuthBackend {
     type Permission = AuthPermission;
@@ -204,3 +216,7 @@ impl AuthzBackend for AuthBackend {
         }
     }
 }
+
+impl_from!(diesel::result::Error);
+impl_from!(r2d2::Error);
+impl_from!(SignatureError);

@@ -26,7 +26,7 @@ pub struct AuthManager<S, Backend: AuthnBackend> {
 }
 
 impl<S, Backend: AuthnBackend> AuthManager<S, Backend> {
-    /// Create a new [`AuthManager`] with the provided access controller.
+    /// Create a new [`AuthManager`] with the provided access api.
     pub fn new(inner: S, backend: Backend, data_key: &'static str) -> Self {
         Self {
             inner,
@@ -117,7 +117,7 @@ pub struct AuthManagerLayer<
 impl<Backend: AuthnBackend, Sessions: SessionStore, C: CookieController>
     AuthManagerLayer<Backend, Sessions, C>
 {
-    /// Create a new [`AuthManagerLayer`] with the provided access controller.
+    /// Create a new [`AuthManagerLayer`] with the provided access api.
     pub(crate) fn new(
         backend: Backend,
         data_key: &'static str,
@@ -163,7 +163,7 @@ impl<Backend: AuthnBackend, Sessions: SessionStore, C: CookieController>
     AuthManagerLayerBuilder<Backend, Sessions, C>
 {
     /// Create a new [`AuthManagerLayerBuilder`] with the provided access
-    /// controller.
+    /// api.
     pub fn new(backend: Backend, session_manager_layer: SessionManagerLayer<Sessions, C>) -> Self {
         Self {
             backend,
