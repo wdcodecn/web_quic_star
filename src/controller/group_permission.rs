@@ -60,6 +60,7 @@ mod web {
     use crate::api_doc::errors::AppError;
     use crate::api_doc::extractors::Json;
     use crate::controller::{PageParam, PageRes};
+    use crate::db_models::{LogicDeleteQuery, Paginate};
     use axum::extract::State;
     use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 
@@ -102,10 +103,8 @@ mod web {
         Json(page): Json<PageParam<GroupsPermissionBuilder>>,
     ) -> Result<Json<PageRes<GroupsPermission, GroupsPermissionBuilder>>, AppError> {
         let mut connection = pool.get()?;
-        let off_lim = page.get_offset_limit();
         let mut statement = crate::schema::groups_permissions::dsl::groups_permissions.into_boxed();
-        let mut count_statement =
-            crate::schema::groups_permissions::dsl::groups_permissions.into_boxed();
+
         let filter = page.filters.clone();
         if let Some(filter_param) = filter.group_id {
             match filter_param.compare {
@@ -114,17 +113,11 @@ mod web {
                         crate::schema::groups_permissions::group_id
                             .ne(filter_param.compare_value.clone()),
                     );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::group_id.ne(filter_param.compare_value),
-                    );
                 }
                 Compare::Equal => {
                     statement = statement.filter(
                         crate::schema::groups_permissions::group_id
                             .eq(filter_param.compare_value.clone()),
-                    );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::group_id.eq(filter_param.compare_value),
                     );
                 }
                 Compare::Greater => {
@@ -132,17 +125,11 @@ mod web {
                         crate::schema::groups_permissions::group_id
                             .gt(filter_param.compare_value.clone()),
                     );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::group_id.gt(filter_param.compare_value),
-                    );
                 }
                 Compare::GreaterAndEqual => {
                     statement = statement.filter(
                         crate::schema::groups_permissions::group_id
                             .ge(filter_param.compare_value.clone()),
-                    );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::group_id.ge(filter_param.compare_value),
                     );
                 }
                 Compare::Less => {
@@ -150,17 +137,11 @@ mod web {
                         crate::schema::groups_permissions::group_id
                             .lt(filter_param.compare_value.clone()),
                     );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::group_id.lt(filter_param.compare_value),
-                    );
                 }
                 Compare::LessAndEqual => {
                     statement = statement.filter(
                         crate::schema::groups_permissions::group_id
                             .le(filter_param.compare_value.clone()),
-                    );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::group_id.le(filter_param.compare_value),
                     );
                 }
             }
@@ -172,19 +153,11 @@ mod web {
                         crate::schema::groups_permissions::permission_id
                             .ne(filter_param.compare_value.clone()),
                     );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::permission_id
-                            .ne(filter_param.compare_value),
-                    );
                 }
                 Compare::Equal => {
                     statement = statement.filter(
                         crate::schema::groups_permissions::permission_id
                             .eq(filter_param.compare_value.clone()),
-                    );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::permission_id
-                            .eq(filter_param.compare_value),
                     );
                 }
                 Compare::Greater => {
@@ -192,19 +165,11 @@ mod web {
                         crate::schema::groups_permissions::permission_id
                             .gt(filter_param.compare_value.clone()),
                     );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::permission_id
-                            .gt(filter_param.compare_value),
-                    );
                 }
                 Compare::GreaterAndEqual => {
                     statement = statement.filter(
                         crate::schema::groups_permissions::permission_id
                             .ge(filter_param.compare_value.clone()),
-                    );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::permission_id
-                            .ge(filter_param.compare_value),
                     );
                 }
                 Compare::Less => {
@@ -212,43 +177,33 @@ mod web {
                         crate::schema::groups_permissions::permission_id
                             .lt(filter_param.compare_value.clone()),
                     );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::permission_id
-                            .lt(filter_param.compare_value),
-                    );
                 }
                 Compare::LessAndEqual => {
                     statement = statement.filter(
                         crate::schema::groups_permissions::permission_id
                             .le(filter_param.compare_value.clone()),
                     );
-                    count_statement = count_statement.filter(
-                        crate::schema::groups_permissions::permission_id
-                            .le(filter_param.compare_value),
-                    );
                 }
             }
-        }
-        let total_count = count_statement.count().get_result::<i64>(&mut connection)?;
-        let res;
+        };
         let x_table = diesel_dynamic_schema::table(stringify!(groups_permissions));
         let order_column = x_table.column::<diesel::sql_types::Text, _>(page.order_column.clone());
-        if page.is_desc {
-            res = statement
-                .offset(off_lim.0)
-                .limit(off_lim.1)
+        let res = if page.is_desc {
+            statement
                 .order(order_column.desc())
                 .select(GroupsPermission::as_select())
-                .load(&mut connection)?;
+                .logic_delete_query()
+                .paginate(page.page_no, page.page_size)
+                .load_and_count_pages(&mut connection)?
         } else {
-            res = statement
-                .offset(off_lim.0)
-                .limit(off_lim.1)
+            statement
                 .order(order_column.asc())
                 .select(GroupsPermission::as_select())
-                .load(&mut connection)?;
-        }
-        let page_res = PageRes::from_param_records_count(page, res, total_count);
+                .logic_delete_query()
+                .paginate(page.page_no, page.page_size)
+                .load_and_count_pages(&mut connection)?
+        };
+        let page_res = PageRes::from_param_records_count(page, res.0, res.1);
         Ok(Json(page_res))
     }
 }
