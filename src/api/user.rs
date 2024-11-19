@@ -26,7 +26,7 @@ use crate::framework::auth::AuthBackend;
 use crate::schema::users::dsl::users;
 
 #[derive(Serialize, Deserialize, OperationIo, Debug, Default, JsonSchema)]
-struct ModifyPassword {
+pub struct ModifyPassword {
     old_password: String,
     new_password: String,
 }
