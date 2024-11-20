@@ -44,10 +44,10 @@ use serde_path_to_error::Segment;
 /// Wrapper type over [`axum::Json`] that validates
 /// requests and responds with a more helpful validation
 /// message.
-pub struct Json<T>(pub T);
+pub struct JsonValidator<T>(pub T);
 
 #[async_trait]
-impl<S, T> FromRequest<S> for Json<T>
+impl<S, T> FromRequest<S> for JsonValidator<T>
 where
     S: Send + Sync,
     T: DeserializeOwned + JsonSchema + 'static,
@@ -90,13 +90,13 @@ where
         }
 
         match serde_path_to_error::deserialize(value) {
-            Ok(v) => Ok(Json(v)),
+            Ok(v) => Ok(JsonValidator(v)),
             Err(error) => Err(JsonSchemaRejection::Serde(error)),
         }
     }
 }
 
-impl<T> IntoResponse for Json<T>
+impl<T> IntoResponse for JsonValidator<T>
 where
     T: Serialize,
 {
@@ -125,7 +125,7 @@ impl SchemaContext {
     }
 }
 
-/// Rejection for [`Json`].
+/// Rejection for [`JsonValidator`].
 #[derive(Debug)]
 pub enum JsonSchemaRejection {
     /// A rejection returned by [`axum::Json`].
@@ -223,7 +223,7 @@ impl IntoResponse for JsonSchemaRejection {
 mod impl_aide {
     use super::*;
 
-    impl<T> aide::OperationInput for Json<T>
+    impl<T> aide::OperationInput for JsonValidator<T>
     where
         T: JsonSchema,
     {
@@ -235,7 +235,7 @@ mod impl_aide {
         }
     }
 
-    impl<T> aide::OperationOutput for Json<T>
+    impl<T> aide::OperationOutput for JsonValidator<T>
     where
         T: JsonSchema,
     {

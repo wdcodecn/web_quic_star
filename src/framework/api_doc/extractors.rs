@@ -8,12 +8,12 @@ use crate::framework::api_doc::errors::AppError;
 
 #[derive(FromRequest, OperationIo, JsonSchema)]
 #[from_request(
-    via(crate::framework::api_doc::axum_json_for_schema::Json),
+    via(crate::framework::api_doc::axum_json_for_schema::JsonValidator),
     rejection(AppError)
 )]
 #[aide(
-    input_with = "crate::framework::api_doc::axum_json_for_schema::Json<T>",
-    output_with = "crate::framework::api_doc::axum_json_for_schema::Json<T>",
+    input_with = "crate::framework::api_doc::axum_json_for_schema::JsonValidator<T>",
+    output_with = "crate::framework::api_doc::axum_json_for_schema::JsonValidator<T>",
     json_schema
 )]
 pub struct Json<T>(pub T);
