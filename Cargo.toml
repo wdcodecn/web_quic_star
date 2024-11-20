@@ -8,7 +8,7 @@ default = ["dev", "eth_mode", "solana_mode","postgres"]
 eth_mode = ["dep:alloy"]
 solana_mode = ["dep:solana-sdk", "dep:anchor-client"]
 dev = []
-postgres = ["diesel/postgres", "diesel-dynamic-schema/postgres","dep:r2d2_postgres"]
+postgres = ["diesel/postgres", "diesel-dynamic-schema/postgres"]
 #mysql = ["diesel/mysql", "diesel-dynamic-schema/mysql", "diesel-derive-enum/mysql","dep:r2d2_mysql"]
 
 [dependencies]
@@ -30,7 +30,7 @@ serde_json = "1.0.132"
 diesel = { version = "2.2.4", features = ["extras", ] }
 diesel-dynamic-schema = { version = "0.2.2", features = [] }
 r2d2 = "0.8.10"
-r2d2_postgres = { version = "0.18.1" ,optional = true}
+#r2d2_postgres = { version = "0.18.1" ,optional = true}
 #r2d2_mysql = { version = "25.0.0",optional = true}
 bigdecimal = { version = "0.4.6", features = ["serde-json"] }
 chrono = { version = "0.4.38", features = ["serde"] }

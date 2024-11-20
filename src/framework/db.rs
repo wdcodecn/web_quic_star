@@ -111,7 +111,7 @@ where
     fn walk_ast<'b>(&'b self, mut out: AstPass<'_, 'b, DbType>) -> QueryResult<()> {
         out.push_sql("SELECT * FROM (");
         self.query.walk_ast(out.reborrow())?;
-        out.push_sql(") t  where t.is_delete = false ");
+        out.push_sql(") dt  where dt.is_delete = false ");
 
         Ok(())
     }

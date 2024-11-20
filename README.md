@@ -55,4 +55,4 @@ to model ,
 
 derive     WebApiGen ,
 
-cargo run --package web_quic_star --bin example_app
+cargo run  --bin example_app
