@@ -1,16 +1,16 @@
 use std::env;
 
 use aide::axum::ApiRouter;
-use tracing::{error, info};
-use web_quic_star::framework::api_doc::{fallback, set_api_doc};
-use web_quic_star::framework::auth::get_auth_layer;
-use web_quic_star::framework::db::setup_connection_pool;
-use web_quic_star::scheduled_task::set_scheduler;
-use web_quic_star::set_env;
+use tracing::info;
+use web_quick::framework::api_doc::{fallback, set_api_doc};
+use web_quick::framework::auth::get_auth_layer;
+use web_quick::framework::db::setup_connection_pool;
+use web_quick::scheduled_task::set_scheduler;
+use web_quick::set_env;
 
 #[tokio::main]
 async fn main() {
-    web_quic_star::set_log();
+    web_quick::set_log();
     set_env();
 
     let connection_pool = setup_connection_pool();
@@ -19,22 +19,22 @@ async fn main() {
     aide::gen::extract_schemas(true);
 
     let app = ApiRouter::new()
-        .nest_api_service("/auth", web_quic_star::router::router())
+        .nest_api_service("/auth", web_quick::router::router())
         .nest_api_service(
             "/users",
-            web_quic_star::router::user_routes(connection_pool.clone()),
+            web_quick::router::user_routes(connection_pool.clone()),
         )
         .nest_api_service(
             "/groups",
-            web_quic_star::router::group_router(connection_pool.clone()),
+            web_quick::router::group_router(connection_pool.clone()),
         )
         .nest_api_service(
             "/permissions",
-            web_quic_star::router::permission_routes(connection_pool.clone()),
+            web_quick::router::permission_routes(connection_pool.clone()),
         )
         .nest_api_service(
             "/group_permission",
-            web_quic_star::router::group_permission_routes(connection_pool.clone()),
+            web_quick::router::group_permission_routes(connection_pool.clone()),
         )
         .fallback(fallback)
         .with_state(connection_pool.clone())

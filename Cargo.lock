@@ -8122,7 +8122,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "web_quic_star"
+name = "web_quick"
 version = "0.1.0"
 dependencies = [
  "aide",

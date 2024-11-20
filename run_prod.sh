@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-nohup cargo run --release --package web_quic_star --bin example_app
+nohup cargo run --release  --bin example_app
