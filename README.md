@@ -12,8 +12,11 @@ example: [user.rs](src%2Fdb_models%2Fuser.rs)
 ## auto log error position when using ? with AppError ,so that we can find the origin error
 example: [group_permission.rs](src%2Fapi%2Fgroup_permission.rs)
 
-## include basic cookie auth
+## basic cookie auth
 impl: [auth.rs](src%2Fframework%2Fauth.rs)
+
+## scheduled task
+example: [mod.rs](src%2Fscheduled_task%2Fmod.rs)
 
 ## using axum as web server
 
