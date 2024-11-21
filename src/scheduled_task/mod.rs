@@ -9,16 +9,16 @@ pub async fn add_async_cron<R>(
     sched: &JobScheduler,
     pool: ConnPool,
     cron: &str,
-    task: fn(PooledConnection<ConnectionManager<Conn>>) -> R,
+    task: fn(ConnPool) -> R,
 ) where
     R: Future<Output = AppRes<()>> + Sized + Send + 'static,
 {
     sched
         .add(
-            Job::new_async(cron, move |_uuid, _l| {
-                let conn = pool.get().expect("cannot get pool");
+            Job::new_async(cron, move |_uuid, l| {
+                let pool = pool.clone();
                 Box::pin(async move {
-                    match task(conn).await {
+                    match task(pool).await {
                         Ok(_) => {
                             debug!("cron task succeed");
                         }
@@ -33,7 +33,7 @@ pub async fn add_async_cron<R>(
         .await
         .expect("cannot join job");
 }
-pub async fn example(mut conn: PooledConnection<ConnectionManager<Conn>>) -> AppRes<()> {
+pub async fn example(mut conn: ConnPool) -> AppRes<()> {
     Ok(())
 }
 
