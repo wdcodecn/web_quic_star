@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, panic};
 
 use aide::axum::ApiRouter;
 use tracing::info;

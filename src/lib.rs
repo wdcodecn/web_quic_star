@@ -1,6 +1,7 @@
 #![feature(backtrace_frames)]
 #![feature(negative_impls)]
 
+use std::panic;
 use framework::api_doc::errors::AppError;
 use tracing::error;
 
@@ -29,6 +30,9 @@ pub fn set_env() {
 }
 
 pub fn set_log() {
+    panic::set_hook(Box::new(|info| {
+        error!(error = %info, "panic occurred");
+    }));
     tracing_subscriber::fmt()
         .pretty()
         .with_max_level(tracing::Level::INFO)

@@ -1,10 +1,8 @@
 use crate::db_models::{Conn, ConnPool};
 use crate::AppRes;
-use diesel::r2d2::ConnectionManager;
-use r2d2::PooledConnection;
 use std::future::Future;
 use tokio_cron_scheduler::{Job, JobScheduler};
-use tracing::{debug, error, info};
+use tracing::{debug, error};
 pub async fn add_async_cron<R>(
     sched: &JobScheduler,
     pool: ConnPool,
@@ -15,7 +13,7 @@ pub async fn add_async_cron<R>(
 {
     sched
         .add(
-            Job::new_async(cron, move |_uuid, l| {
+            Job::new_async(cron, move |_uuid, _l| {
                 let pool = pool.clone();
                 Box::pin(async move {
                     match task(pool).await {

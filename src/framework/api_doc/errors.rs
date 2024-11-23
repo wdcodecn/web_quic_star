@@ -19,6 +19,8 @@ pub struct AppError {
     /// Optional Additional error details.
     #[serde(skip_serializing_if = "Option::is_none")]
     error_details: Option<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    error_origin_position: Option<String>,
 }
 
 // impl Deref for AppError {
@@ -31,12 +33,29 @@ pub struct AppError {
 
 impl Display for AppError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "(+error:{}, +error_id:{}, +error_details:{:?})",
-            self.error, self.error_id, self.error_details
-        )
+        write!(f, "error:{}, +error_id:{}", self.error, self.error_id)?;
+        match &self.error_origin_position {
+            None => {}
+            Some(x) => {
+                write!(f, " +Position:{x}")?;
+            }
+        }
+        match &self.error_details {
+            None => Ok(()),
+            Some(x) => {
+                write!(f, " +error_details:{x}")
+            }
+        }
     }
+}
+#[test]
+fn test_display_error() {
+    println!(
+        "{}",
+        AppError::new("eee".to_string())
+            .with_status(StatusCode::INTERNAL_SERVER_ERROR)
+            .with_error_origin_position("aaaa".to_string())
+    );
 }
 
 impl AppError {
@@ -46,6 +65,7 @@ impl AppError {
             error_id: Uuid::new_v4(),
             status: StatusCode::BAD_REQUEST,
             error_details: None,
+            error_origin_position: None,
         }
     }
 
@@ -56,6 +76,11 @@ impl AppError {
 
     pub fn with_details(mut self, details: Value) -> Self {
         self.error_details = Some(details);
+        self
+    }
+
+    pub fn with_error_origin_position(mut self, position: String) -> Self {
+        self.error_origin_position = Some(position);
         self
     }
 }
@@ -73,9 +98,10 @@ impl From<JsonSchemaRejection> for AppError {
 impl<T: Error> From<T> for AppError {
     #[track_caller]
     fn from(value: T) -> Self {
-        let app_error = AppError::new(format!("{value}",));
         let caller_location = std::panic::Location::caller();
-        tracing::error!(
+        let position = format!("{caller_location}");
+        let app_error = AppError::new(format!("{value}",)).with_error_origin_position(position);
+        tracing::debug!(
             "Position:{caller_location}; Error:{value}; Error ID:{};",
             app_error.error_id
         );
