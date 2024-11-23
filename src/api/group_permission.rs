@@ -181,3 +181,34 @@ pub(crate) mod web {
         Ok(Json(page_res))
     }
 }
+
+pub fn group_permission_routes(conn_pool: ConnPool) -> ApiRouter {
+    let router_add = ApiRouter::new().api_route(
+        "/create_entity",
+        post_with(
+            crate::api::group_permission::web::create_entity,
+            empty_resp_docs,
+        ),
+    );
+    let router_read = ApiRouter::new()
+        .api_route(
+            "/get_entity_by_id/:group_id/:permission_id",
+            get_with(web::get_entity_by_id, default_resp_docs::<GroupsPermission>),
+        )
+        .api_route(
+            "/get_entity_page",
+            post_with(web::get_entity_page, empty_resp_docs),
+        );
+    let router_delete = ApiRouter::new().api_route(
+        "/delete_entity_by_id/:group_id/:permission_id",
+        delete_with(
+            web::delete_entity_by_id,
+            default_resp_docs::<GroupsPermission>,
+        ),
+    );
+    router_add
+        .route_layer(permission_required!(AuthBackend, "users_add"))
+        .merge(router_read.route_layer(permission_required!(AuthBackend, "users_read")))
+        .merge(router_delete.route_layer(permission_required!(AuthBackend, "users_delete")))
+        .with_state(conn_pool)
+}

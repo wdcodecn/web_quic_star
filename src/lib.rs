@@ -1,15 +1,14 @@
 #![feature(backtrace_frames)]
 #![feature(negative_impls)]
 
-use std::panic;
 use framework::api_doc::errors::AppError;
+use std::panic;
 use tracing::error;
 
 pub mod api;
 pub mod db_models;
 pub mod domain;
 pub mod framework;
-pub mod router;
 pub mod scheduled_task;
 pub mod schema;
 pub mod utils;

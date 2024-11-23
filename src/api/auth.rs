@@ -1,6 +1,9 @@
+use crate::db_models::user::User;
+use crate::framework::api_doc::default_resp_docs;
 use crate::framework::api_doc::extractors::Json;
 use crate::framework::auth::{AuthBackend, Credentials};
-use aide::axum::IntoApiResponse;
+use aide::axum::routing::post_with;
+use aide::axum::{ApiRouter, IntoApiResponse};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Redirect};
 use axum_login::AuthSession;
@@ -24,4 +27,8 @@ pub async fn login(
     } else {
         StatusCode::OK.into_response()
     }
+}
+
+pub fn router() -> ApiRouter<()> {
+    ApiRouter::new().api_route("/login", post_with(login, default_resp_docs::<User>))
 }

@@ -20,7 +20,7 @@ use r2d2::Pool;
 use crate::db_models;
 use crate::db_models::user::web::get_routers;
 use crate::db_models::user::User;
-use crate::db_models::ConnPool;
+use crate::db_models::{user, ConnPool};
 use crate::framework::api_doc::{default_resp_docs, empty_resp_docs};
 use crate::framework::auth::AuthBackend;
 use crate::schema::users::dsl::users;
@@ -51,4 +51,19 @@ pub(crate) async fn modify_password(
     }
 
     Ok("succeed".to_string())
+}
+
+pub fn user_routes(conn_pool: ConnPool) -> ApiRouter {
+    let (router_add, router_read, router_update, router_delete) = user::web::get_routers();
+    let modify_password = ApiRouter::new().api_route(
+        "/modify_password",
+        post_with(modify_password, default_resp_docs::<String>),
+    );
+    router_add
+        .route_layer(permission_required!(AuthBackend, "users_add"))
+        .merge(router_read.route_layer(permission_required!(AuthBackend, "users_read")))
+        .merge(router_delete.route_layer(permission_required!(AuthBackend, "users_delete")))
+        .merge(router_update.route_layer(permission_required!(AuthBackend, "users_update")))
+        .merge(modify_password.route_layer(login_required!(AuthBackend)))
+        .with_state(conn_pool)
 }

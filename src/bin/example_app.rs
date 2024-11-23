@@ -1,4 +1,4 @@
-use std::{env, panic};
+use std::env;
 
 use aide::axum::ApiRouter;
 use http::{HeaderValue, Method};
@@ -21,22 +21,22 @@ async fn main() {
     aide::gen::extract_schemas(true);
 
     let app = ApiRouter::new()
-        .nest_api_service("/auth", web_quick::router::router())
+        .nest_api_service("/auth", web_quick::api::auth::router())
         .nest_api_service(
             "/users",
-            web_quick::router::user_routes(connection_pool.clone()),
+            web_quick::api::user::user_routes(connection_pool.clone()),
         )
         .nest_api_service(
             "/groups",
-            web_quick::router::group_router(connection_pool.clone()),
+            web_quick::api::group::group_router(connection_pool.clone()),
         )
         .nest_api_service(
             "/permissions",
-            web_quick::router::permission_routes(connection_pool.clone()),
+            web_quick::api::permission::permission_routes(connection_pool.clone()),
         )
         .nest_api_service(
             "/group_permission",
-            web_quick::router::group_permission_routes(connection_pool.clone()),
+            web_quick::api::group_permission::group_permission_routes(connection_pool.clone()),
         )
         .fallback(fallback)
         .with_state(connection_pool.clone())
