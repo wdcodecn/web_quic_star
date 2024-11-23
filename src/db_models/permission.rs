@@ -21,6 +21,7 @@ pub struct NewPermission {
     pub name: String,
     pub remark: Option<String>,
     pub create_time: DateTime<Utc>,
+    #[validate(range(min = 1))]
     pub create_by: i64,
     pub is_delete: bool,
 }
@@ -51,4 +52,3 @@ pub struct Permission {
     pub update_by: Option<i64>,
     pub is_delete: bool,
 }
-

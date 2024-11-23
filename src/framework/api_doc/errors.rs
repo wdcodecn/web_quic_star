@@ -52,9 +52,7 @@ impl Display for AppError {
 fn test_display_error() {
     println!(
         "{}",
-        AppError::new("eee".to_string())
-            .with_status(StatusCode::INTERNAL_SERVER_ERROR)
-            .with_error_origin_position("aaaa".to_string())
+        AppError::new("eee".to_string()).with_error_origin_position("aaaa".to_string())
     );
 }
 

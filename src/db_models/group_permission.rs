@@ -24,7 +24,9 @@ use serde::{Deserialize, Serialize};
 #[diesel(table_name = crate::schema::groups_permissions)]
 #[diesel(check_for_backend(super::DbType))]
 pub struct GroupsPermission {
+    #[validate(range(min = 1))]
     pub group_id: i64,
+    #[validate(range(min = 1))]
     pub permission_id: i64,
 }
 

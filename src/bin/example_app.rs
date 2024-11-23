@@ -1,13 +1,15 @@
 use std::{env, panic};
 
 use aide::axum::ApiRouter;
+use http::{HeaderValue, Method};
+use tower_http::cors::CorsLayer;
+use tower_http::trace::TraceLayer;
 use tracing::info;
 use web_quick::framework::api_doc::{fallback, set_api_doc};
 use web_quick::framework::auth::get_auth_layer;
 use web_quick::framework::db::setup_connection_pool;
 use web_quick::scheduled_task::set_scheduler;
 use web_quick::set_env;
-
 #[tokio::main]
 async fn main() {
     web_quick::set_log();
@@ -38,6 +40,13 @@ async fn main() {
         )
         .fallback(fallback)
         .with_state(connection_pool.clone())
+        .layer(tower_http::catch_panic::CatchPanicLayer::new())
+        .layer(TraceLayer::new_for_http())
+        .layer(
+            CorsLayer::new()
+                .allow_origin("*".parse::<HeaderValue>().unwrap())
+                .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE]),
+        )
         .layer(get_auth_layer(connection_pool.clone()));
 
     let doc_app = set_api_doc(app);
