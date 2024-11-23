@@ -1,4 +1,4 @@
-use crate::db_models::{Conn, ConnPool};
+use crate::db_models::ConnPool;
 use crate::AppRes;
 use std::future::Future;
 use tokio_cron_scheduler::{Job, JobScheduler};
@@ -31,7 +31,7 @@ pub async fn add_async_cron<R>(
         .await
         .expect("cannot join job");
 }
-pub async fn example(mut conn: ConnPool) -> AppRes<()> {
+pub async fn example(mut _conn: ConnPool) -> AppRes<()> {
     Ok(())
 }
 

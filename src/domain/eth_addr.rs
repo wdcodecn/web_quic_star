@@ -64,7 +64,7 @@ impl JsonSchema for EthAddr {
         "EthAddr".to_owned()
     }
 
-    fn json_schema(gen: &mut SchemaGenerator) -> Schema {
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
         SchemaObject {
             instance_type: Some(InstanceType::String.into()),
             ..Default::default()

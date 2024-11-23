@@ -4,24 +4,16 @@ use crate::AppRes;
 use aide::OperationIo;
 use axum::extract::State;
 use axum_login::{login_required, AuthSession};
-use chrono::{DateTime, Utc};
-use derive_builder::WebApiGen;
-use diesel::{AsChangeset, Insertable, Queryable, RunQueryDsl, Selectable};
+use diesel::RunQueryDsl;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use aide::axum::routing::{delete_with, get_with, post_with, put_with};
+use aide::axum::routing::post_with;
 use aide::axum::ApiRouter;
 use axum_login::permission_required;
 
-use diesel::r2d2::ConnectionManager;
-use r2d2::Pool;
-
-use crate::db_models;
-use crate::db_models::user::web::get_routers;
-use crate::db_models::user::User;
 use crate::db_models::{user, ConnPool};
-use crate::framework::api_doc::{default_resp_docs, empty_resp_docs};
+use crate::framework::api_doc::default_resp_docs;
 use crate::framework::auth::AuthBackend;
 use crate::schema::users::dsl::users;
 

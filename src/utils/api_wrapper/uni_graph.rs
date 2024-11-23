@@ -62,8 +62,7 @@ pub struct Token {
     pub id: String,
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn graph() -> Result<(), Box<dyn std::error::Error>> {
     let client = reqwest::Client::builder().build()?;
 
     let mut headers = reqwest::header::HeaderMap::new();

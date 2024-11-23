@@ -3,9 +3,6 @@
 // use alloy::{node_bindings::Anvil, primitives::address, providers::ProviderBuilder, sol};
 // use eyre::Result;
 
-use std::error::Error;
-use std::str::FromStr;
-
 use crate::utils::contracts::readonly_http_provider;
 use crate::utils::contracts::uni_factory::{uni_factory_addr, UNI_FACTORY};
 

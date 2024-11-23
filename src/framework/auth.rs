@@ -16,7 +16,6 @@ use axum_login::{
 };
 use diesel::associations::HasTable;
 use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, RunQueryDsl, SelectableHelper};
-use password_auth::verify_password;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use std::collections::HashSet;
@@ -108,6 +107,8 @@ impl AuthnBackend for AuthBackend {
         &self,
         creds: Self::Credentials,
     ) -> Result<Option<Self::User>, Self::Error> {
+        use password_auth::verify_password;
+
         match users
             .filter(username.eq(creds.username))
             .select(User::as_select())

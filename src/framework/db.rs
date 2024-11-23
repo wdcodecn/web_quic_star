@@ -3,7 +3,7 @@ use diesel::query_builder::{AstPass, Query, QueryFragment};
 use diesel::query_dsl::LoadQuery;
 use diesel::r2d2::ConnectionManager;
 use diesel::sql_types::BigInt;
-use diesel::{QueryDsl, QueryId, QueryResult, QueryableByName, RunQueryDsl, SelectableHelper};
+use diesel::{QueryId, QueryResult, QueryableByName, RunQueryDsl};
 use r2d2::Pool;
 use std::env;
 

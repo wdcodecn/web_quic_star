@@ -4,7 +4,6 @@
 // use eyre::Result;
 
 use std::env;
-use std::error::Error;
 use std::str::FromStr;
 
 use alloy::primitives::Address;
