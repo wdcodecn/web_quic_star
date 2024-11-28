@@ -45,3 +45,15 @@ pub fn set_log() {
         error!("{error}");
     });
 }
+#[test]
+pub fn test() {
+    set_log();
+    use tracing::error;
+
+    let (err_info, port) = ("No connection", 22);
+
+    error!(err_info);
+    error!(target: "app_events", "App Error: {}", err_info);
+    error!({ info = err_info }, "error on port: {}", port);
+    error!(name: "invalid_input", "Invalid input: {}", err_info);
+}

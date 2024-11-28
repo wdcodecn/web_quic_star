@@ -122,6 +122,8 @@ async fn test() {
     use crate::db_models::user::User;
     use crate::schema::users::table as users;
     use crate::set_env;
+    use diesel::QueryDsl;
+    use diesel::SelectableHelper;
 
     set_env();
     let connection_pool = setup_connection_pool();
@@ -129,7 +131,7 @@ async fn test() {
     let x = users
         .select(User::as_select())
         .logic_delete_query()
-        .paginate(1, 10)
+        .paginate(0, 10)
         .load_and_count_pages(&mut pooled_connection)
         .unwrap();
 

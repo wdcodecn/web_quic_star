@@ -62,7 +62,7 @@ pub struct Token {
     pub id: String,
 }
 
-async fn graph() -> Result<(), Box<dyn std::error::Error>> {
+async fn _graph() -> Result<(), Box<dyn std::error::Error>> {
     let client = reqwest::Client::builder().build()?;
 
     let mut headers = reqwest::header::HeaderMap::new();
