@@ -710,6 +710,7 @@ impl Options {
 
 /// Accessor for field data which can pull through options from the parent
 /// struct.
+#[derive(Clone)]
 pub struct FieldWithDefaults<'a> {
     parent: &'a Options,
     pub field: &'a Field,

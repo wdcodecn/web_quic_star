@@ -75,6 +75,17 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
     let mut builder = opts.as_builder();
     let builder_ident = opts.builder_ident();
 
+    let mut id_type =None;
+    for field in opts.fields() {
+        if format!("{}", field.field_ident()) == "id" {
+            id_type = Some(field.clone());
+            break
+        };
+    }
+    let id_type_d = id_type.unwrap();
+    let field_type = id_type_d.field_type();
+    let (id_type,_) = field_type.setter_type_info();
+
     let mut filters = vec![];
     for field in opts.fields() {
         let ident = field.field_ident();
@@ -201,7 +212,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
 
             pub async fn update_entity_by_id(
                 State(pool): State<ConnPool>,
-                Path(id_param): Path<i64>,
+                Path(id_param): Path<#id_type>,
                 Json(new): Json<#new_model>,
             ) -> Result<Json<#model>, AppError> {
                 let mut connection = pool.get()?;
@@ -214,7 +225,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
 
             pub async fn get_entity_by_id(
                 State(pool): State<ConnPool>,
-                Path(id_param): Path<i64>,
+                Path(id_param): Path<#id_type>,
             ) -> Result<Json<#model>, AppError> {
                 let mut connection = pool.get()?;
                 let result = #schema_s
@@ -226,7 +237,7 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
 
             pub async fn delete_entity_by_id(
                 State(pool): State<ConnPool>,
-                Path(id_param): Path<i64>,
+                Path(id_param): Path<#id_type>,
             ) -> Result<Json<#model>, AppError> {
                 let mut connection = pool.get()?;
                 let result = diesel::update(#schema_s.find(id_param))
