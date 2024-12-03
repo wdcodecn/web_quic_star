@@ -55,7 +55,7 @@ pub(crate) use setter::Setter;
 const DEFAULT_STRUCT_NAME: &str = "__default";
 
 /// Derive a builder for a struct
-pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
+pub fn web_api_builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
     let opts = match macro_options::Options::from_derive_input(&ast) {
         Ok(val) => val,
         Err(err) => {
@@ -75,16 +75,16 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
     let mut builder = opts.as_builder();
     let builder_ident = opts.builder_ident();
 
-    let mut id_type =None;
+    let mut id_type = None;
     for field in opts.fields() {
         if format!("{}", field.field_ident()) == "id" {
             id_type = Some(field.clone());
-            break
+            break;
         };
     }
     let id_type_d = id_type.unwrap();
     let field_type = id_type_d.field_type();
-    let (id_type,_) = field_type.setter_type_info();
+    let (id_type, _) = field_type.setter_type_info();
 
     let mut filters = vec![];
     for field in opts.fields() {
@@ -298,6 +298,195 @@ pub fn builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
     stream.append_all(f);
     stream.into()
 }
+pub fn query_api_builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenStream {
+    let opts = match macro_options::Options::from_derive_input(&ast) {
+        Ok(val) => val,
+        Err(err) => {
+            return err.write_errors();
+        }
+    };
+    let model = opts.ident.clone();
+
+    let schema = format_ident!("{}", model.to_string().to_snake_case());
+    let get = format_ident!("get_{schema}_by_id");
+
+    let page = format_ident!("page_of_{schema}");
+    let schema_s = format_ident!("{}s", schema);
+    let mut builder = opts.as_builder();
+    let builder_ident = opts.builder_ident();
+
+    let mut id_type = None;
+    for field in opts.fields() {
+        if format!("{}", field.field_ident()) == "id" {
+            id_type = Some(field.clone());
+            break;
+        };
+    }
+    let id_type_d = id_type.unwrap();
+    let field_type = id_type_d.field_type();
+    let (id_type, _) = field_type.setter_type_info();
+
+    let mut filters = vec![];
+    for field in opts.fields() {
+        let ident = field.field_ident();
+        filters.push(quote!(
+                    if let Some(filter_param) = filter.#ident {
+                        match filter_param.compare {
+                            Compare::NotEqual => {
+                                statement = statement.filter(crate::schema::#schema_s::#ident.ne(filter_param.compare_value.clone()));
+                            }
+                            Compare::Equal => {
+                                statement = statement.filter(crate::schema::#schema_s::#ident.eq(filter_param.compare_value.clone()));
+                            }
+                            Compare::Greater => {
+                                statement = statement.filter(crate::schema::#schema_s::#ident.gt(filter_param.compare_value.clone()));
+                            }
+                            Compare::GreaterAndEqual => {
+                                statement = statement.filter(crate::schema::#schema_s::#ident.ge(filter_param.compare_value.clone()));
+                            }
+                            Compare::Less => {
+                                statement = statement.filter(crate::schema::#schema_s::#ident.lt(filter_param.compare_value.clone()));
+                            }
+                            Compare::LessAndEqual => {
+                                statement = statement.filter(crate::schema::#schema_s::#ident.le(filter_param.compare_value.clone()));
+                            }
+                        }
+                    }
+        ));
+    }
+
+    let f = quote!(
+        use crate::framework::auth::AuthBackend;
+        use crate::framework::api::LOGIN_URL;
+        use crate::framework::api_doc::{default_resp_docs, empty_resp_docs};
+        use crate::schema::#schema_s::dsl::#schema_s;
+        use aide::axum::routing::{delete_with, get_with, post_with, put_with};
+        use aide::axum::ApiRouter;
+        use axum::extract::{Path};
+        use diesel::r2d2::{ConnectionManager, Pool};
+        use crate::framework::api::Compare;
+        use crate::framework::api::Filter;
+        use axum_login::permission_required;
+        use crate::db_models::ConnPool;
+        pub fn web_routes(conn_pool: ConnPool) -> ApiRouter {
+            let (router_add, router_read, router_update, router_delete) = web::get_routers();
+
+            router_read
+                .route_layer(permission_required!(AuthBackend, "common_read"))
+                .with_state(conn_pool)
+        }
+
+
+
+        pub mod web {
+            use crate::framework::api::{PageParam, PageRes};
+            use super::*;
+            use crate::framework::api_doc::extractors::Json;
+            use axum::extract::State;
+            use diesel::r2d2::{ConnectionManager, Pool};
+            use diesel::{ExpressionMethods,  QueryDsl, RunQueryDsl, SelectableHelper};
+            use crate::framework::api_doc::errors::AppError;
+            use crate::framework::db::{LogicDeleteQuery, Paginate};
+
+            pub fn get_routers() -> (
+                ApiRouter<ConnPool>,
+                ApiRouter<ConnPool>,
+                ApiRouter<ConnPool>,
+                ApiRouter<ConnPool>,
+            ) {
+            let router_add = ApiRouter::new();
+            let router_read = ApiRouter::new()
+                .api_route(
+                    concat!("/",stringify!(#get)),
+                    get_with(
+                        web::get_entity_by_id,
+                        default_resp_docs::<#model>,
+                    ),
+                )
+                .api_route(
+                    concat!("/",stringify!(#page)),
+                    post_with(web::get_entity_page, empty_resp_docs),
+                );
+            let router_update = ApiRouter::new();
+            let router_delete = ApiRouter::new();
+            (
+                router_add,
+                router_read,
+                router_update,
+                router_delete,
+            )
+            }
+
+
+
+
+
+            pub async fn get_entity_by_id(
+                State(pool): State<ConnPool>,
+                Path(id_param): Path<#id_type>,
+            ) -> Result<Json<#model>, AppError> {
+                let mut connection = pool.get()?;
+                let result = #schema_s
+                    .find(id_param)
+                    .select(#model::as_select())
+                    .get_result(&mut connection)?;
+                Ok(Json(result))
+            }
+
+
+
+            pub async fn get_entity_page(
+                State(pool): State<ConnPool>,
+                Json(page): Json<PageParam<#builder_ident>>,
+            ) -> Result<Json<PageRes<#model, #builder_ident>>, AppError> {
+                let mut connection = pool.get()?;
+
+                let mut statement = crate::schema::#schema_s::dsl::#schema_s.into_boxed();
+                let filter = page.filters.clone();
+                    #(#filters)*
+
+
+
+                let x_table = diesel_dynamic_schema::table(stringify!(#schema_s));
+
+                let order_column = x_table.column::<diesel::sql_types::Text, _>(page.order_column.clone());
+                let res = if page.is_desc {
+                    statement
+                        .order(order_column.desc())
+                        .select(#model::as_select())
+                        .logic_delete_query()
+                        .paginate(page.page_no, page.page_size)
+                        .load_and_count_pages(&mut connection)?
+                } else {
+                    statement
+                        .order(order_column.asc())
+                        .select(#model::as_select())
+                        .logic_delete_query()
+                        .paginate(page.page_no, page.page_size)
+                        .load_and_count_pages(&mut connection)?
+                };
+                let page_res = PageRes::from_param_records_count(page, res.0, res.1);
+                Ok(Json(page_res))
+            }
+        }
+
+    );
+
+    // let x_header = quote! {};
+
+    for field in opts.fields() {
+        builder.push_field(field.as_builder_field());
+        // builder.push_setter_fn(field.as_setter());
+        // build_fn.push_initializer(field.as_initializer());
+    }
+
+    // builder.push_build_fn();
+
+    let mut stream = quote!(#builder);
+    stream.append_all(f);
+    stream.into()
+}
+
 pub trait ToSnakeCase: AsRef<str> {
     fn to_snake_case(&self) -> String;
 }

@@ -27,6 +27,10 @@ async fn main() {
             web_quick::api::user::user_routes(connection_pool.clone()),
         )
         .nest_api_service(
+            "/user_with_group",
+            web_quick::db_models::user_with_group_views::web_routes(connection_pool.clone()),
+        )
+        .nest_api_service(
             "/groups",
             web_quick::api::group::group_router(connection_pool.clone()),
         )

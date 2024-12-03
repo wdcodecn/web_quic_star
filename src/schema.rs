@@ -48,6 +48,24 @@ diesel::table! {
         is_delete -> Bool,
     }
 }
+
+diesel::table! {
+    user_with_group_views (id) {
+        id -> Int8,
+        username -> Text,
+        password -> Text,
+        group_id -> Int8,
+        tenantry -> Text,
+        remark -> Nullable<Text>,
+        update_time -> Nullable<Timestamptz>,
+        create_time -> Timestamptz,
+        create_by -> Int8,
+        update_by -> Nullable<Int8>,
+        is_delete -> Bool,
+        group_name -> Nullable<Text>,
+
+    }
+}
 diesel::joinable!(groups_permissions -> groups (group_id));
 diesel::joinable!(groups_permissions -> permissions (permission_id));
 diesel::joinable!(users -> groups (group_id));
