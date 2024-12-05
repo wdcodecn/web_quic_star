@@ -159,12 +159,12 @@ pub fn web_api_builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenSt
                 ApiRouter<ConnPool>,
             ) {
             let router_add = ApiRouter::new().api_route(
-                concat!("/",stringify!(#create)),
+                concat!("/",stringify!(#create),"/:id"),
                 post_with(web::create_entity, empty_resp_docs),
             );
             let router_read = ApiRouter::new()
                 .api_route(
-                    concat!("/",stringify!(#get)),
+                    concat!("/",stringify!(#get),"/:id"),
                     get_with(
                         web::get_entity_by_id,
                         default_resp_docs::<#model>,
@@ -175,14 +175,14 @@ pub fn web_api_builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenSt
                     post_with(web::get_entity_page, empty_resp_docs),
                 );
             let router_update = ApiRouter::new().api_route(
-                concat!("/",stringify!(#update)),
+                concat!("/",stringify!(#update),"/:id"),
                 put_with(
                     web::update_entity_by_id,
                     default_resp_docs::<#model>,
                 ),
             );
             let router_delete = ApiRouter::new().api_route(
-                concat!("/",stringify!(#delete)),
+                concat!("/",stringify!(#delete),"/:id"),
                 delete_with(
                     web::delete_entity_by_id,
                     default_resp_docs::<#model>,
@@ -397,7 +397,7 @@ pub fn query_api_builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::Token
             let router_add = ApiRouter::new();
             let router_read = ApiRouter::new()
                 .api_route(
-                    concat!("/",stringify!(#get)),
+                    concat!("/",stringify!(#get),"/:id"),
                     get_with(
                         web::get_entity_by_id,
                         default_resp_docs::<#model>,
