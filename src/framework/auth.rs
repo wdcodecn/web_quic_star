@@ -7,7 +7,6 @@ use crate::schema::groups::table as groups;
 use crate::schema::groups_permissions::{group_id, permission_id, table as groups_permissions};
 use crate::schema::permissions::table as permissions;
 use crate::schema::users::{table as users, username};
-use alloy::primitives::SignatureError;
 use async_trait::async_trait;
 use axum_login::tower_sessions::cookie::time::Duration;
 use axum_login::tower_sessions::{Expiry, MemoryStore, SessionManagerLayer};
@@ -220,4 +219,7 @@ impl AuthzBackend for AuthBackend {
 
 impl_from!(diesel::result::Error);
 impl_from!(r2d2::Error);
+#[cfg(feature = "eth_mode")]
+use alloy::primitives::SignatureError;
+#[cfg(feature = "eth_mode")]
 impl_from!(SignatureError);
