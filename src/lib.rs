@@ -11,6 +11,7 @@ pub mod domain;
 pub mod framework;
 pub mod scheduled_task;
 pub mod schema;
+pub mod schema_view;
 pub mod utils;
 
 type AppRes<T> = Result<T, AppError>;

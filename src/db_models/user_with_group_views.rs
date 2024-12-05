@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use derive_builder::QueryApiGen;
+use derive_builder::ViewApiGen;
 use diesel::{AsChangeset, Queryable, QueryableByName, Selectable};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -14,9 +14,9 @@ use serde::{Deserialize, Serialize};
     Default,
     AsChangeset,
     Debug,
-    QueryApiGen,
+    ViewApiGen,
 )]
-#[diesel(table_name = crate::schema::user_with_group_views)]
+#[diesel(table_name = crate::schema_view::user_with_group_views)]
 #[diesel(check_for_backend(super::DbType))]
 pub struct UserWithGroupView {
     pub id: i64,

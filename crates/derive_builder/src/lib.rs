@@ -698,7 +698,7 @@ extern crate derive_builder_macro;
 
 mod error;
 
-pub use derive_builder_macro::QueryApiGen;
+pub use derive_builder_macro::ViewApiGen;
 pub use derive_builder_macro::WebApiGen;
 
 #[doc(inline)]

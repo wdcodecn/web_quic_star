@@ -333,22 +333,22 @@ pub fn query_api_builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::Token
                     if let Some(filter_param) = filter.#ident {
                         match filter_param.compare {
                             Compare::NotEqual => {
-                                statement = statement.filter(crate::schema::#schema_s::#ident.ne(filter_param.compare_value.clone()));
+                                statement = statement.filter(crate::schema_view::#schema_s::#ident.ne(filter_param.compare_value.clone()));
                             }
                             Compare::Equal => {
-                                statement = statement.filter(crate::schema::#schema_s::#ident.eq(filter_param.compare_value.clone()));
+                                statement = statement.filter(crate::schema_view::#schema_s::#ident.eq(filter_param.compare_value.clone()));
                             }
                             Compare::Greater => {
-                                statement = statement.filter(crate::schema::#schema_s::#ident.gt(filter_param.compare_value.clone()));
+                                statement = statement.filter(crate::schema_view::#schema_s::#ident.gt(filter_param.compare_value.clone()));
                             }
                             Compare::GreaterAndEqual => {
-                                statement = statement.filter(crate::schema::#schema_s::#ident.ge(filter_param.compare_value.clone()));
+                                statement = statement.filter(crate::schema_view::#schema_s::#ident.ge(filter_param.compare_value.clone()));
                             }
                             Compare::Less => {
-                                statement = statement.filter(crate::schema::#schema_s::#ident.lt(filter_param.compare_value.clone()));
+                                statement = statement.filter(crate::schema_view::#schema_s::#ident.lt(filter_param.compare_value.clone()));
                             }
                             Compare::LessAndEqual => {
-                                statement = statement.filter(crate::schema::#schema_s::#ident.le(filter_param.compare_value.clone()));
+                                statement = statement.filter(crate::schema_view::#schema_s::#ident.le(filter_param.compare_value.clone()));
                             }
                         }
                     }
@@ -359,7 +359,7 @@ pub fn query_api_builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::Token
         use crate::framework::auth::AuthBackend;
         use crate::framework::api::LOGIN_URL;
         use crate::framework::api_doc::{default_resp_docs, empty_resp_docs};
-        use crate::schema::#schema_s::dsl::#schema_s;
+        use crate::schema_view::#schema_s::dsl::#schema_s;
         use aide::axum::routing::{delete_with, get_with, post_with, put_with};
         use aide::axum::ApiRouter;
         use axum::extract::{Path};
@@ -441,7 +441,7 @@ pub fn query_api_builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::Token
             ) -> Result<Json<PageRes<#model, #builder_ident>>, AppError> {
                 let mut connection = pool.get()?;
 
-                let mut statement = crate::schema::#schema_s::dsl::#schema_s.into_boxed();
+                let mut statement = crate::schema_view::#schema_s::dsl::#schema_s.into_boxed();
                 let filter = page.filters.clone();
                     #(#filters)*
 

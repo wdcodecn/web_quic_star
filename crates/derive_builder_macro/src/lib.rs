@@ -29,7 +29,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_derive(
-    QueryApiGen,
+    ViewApiGen,
     attributes(
         builder,
         builder_field_attr,
