@@ -159,7 +159,7 @@ pub fn web_api_builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenSt
                 ApiRouter<ConnPool>,
             ) {
             let router_add = ApiRouter::new().api_route(
-                concat!("/",stringify!(#create),"/:id"),
+                concat!("/",stringify!(#create)),
                 post_with(web::create_entity, empty_resp_docs),
             );
             let router_read = ApiRouter::new()
