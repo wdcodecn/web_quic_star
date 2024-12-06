@@ -92,7 +92,7 @@ impl<Backend: AuthnBackend> JsonSchema for AuthSession<Backend> {
         "auth".to_string()
     }
 
-    fn json_schema(gen: &mut SchemaGenerator) -> Schema {
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
         SchemaObject {
             instance_type: Some(InstanceType::String.into()),
             ..Default::default()

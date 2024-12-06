@@ -3,13 +3,14 @@ use std::env;
 use aide::axum::ApiRouter;
 use http::{HeaderValue, Method};
 use tower_http::cors::CorsLayer;
+use tower_http::services::ServeDir;
 use tower_http::trace::TraceLayer;
 use tracing::info;
 use web_quick::framework::api_doc::{fallback, set_api_doc};
 use web_quick::framework::auth::get_auth_layer;
 use web_quick::framework::db::setup_connection_pool;
 use web_quick::scheduled_task::set_scheduler;
-use web_quick::set_env;
+use web_quick::{set_env, FILE_SERVER_DIRECTORY};
 #[tokio::main]
 async fn main() {
     web_quick::set_log();
@@ -34,6 +35,8 @@ async fn main() {
             "/groups",
             web_quick::api::group::group_router(connection_pool.clone()),
         )
+        .nest_api_service("/upload", web_quick::api::upload::upload_routes())
+        .nest_service(FILE_SERVER_DIRECTORY, ServeDir::new("assets"))
         .nest_api_service(
             "/permissions",
             web_quick::api::permission::permission_routes(connection_pool.clone()),

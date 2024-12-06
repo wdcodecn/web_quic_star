@@ -40,6 +40,7 @@ impl<T> Paginate for T {
     }
 }
 
+#[allow(unused)]
 #[derive(Debug, Clone, Copy, QueryId)]
 pub struct Paginated<T> {
     query: T,

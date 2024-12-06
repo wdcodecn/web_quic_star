@@ -1,12 +1,14 @@
 use crate::db_models::permission::Permission;
 use crate::db_models::user::User;
 use crate::db_models::ConnPool;
+use crate::domain::solana_addr::SolAddr;
 use crate::framework::api_doc::errors::AppError;
 use crate::impl_from;
 use crate::schema::groups::table as groups;
 use crate::schema::groups_permissions::{group_id, permission_id, table as groups_permissions};
 use crate::schema::permissions::table as permissions;
 use crate::schema::users::{table as users, username};
+use anchor_client::solana_sdk::signature::Signature;
 use async_trait::async_trait;
 use axum_login::tower_sessions::cookie::time::Duration;
 use axum_login::tower_sessions::{Expiry, MemoryStore, SessionManagerLayer};
@@ -47,7 +49,7 @@ pub struct AuthBackend {
     db: ConnPool,
 }
 
-#[cfg(not(feature = "eth_mode"))]
+#[cfg(all(not(feature = "eth_mode"), not(feature = "solana_mode")))]
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct Credentials {
     pub username: String,
@@ -59,6 +61,13 @@ pub struct Credentials {
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct Credentials {
     pub user_addr: crate::domain::eth_addr::EthAddr,
+    pub signature: String,
+    pub next: Option<String>,
+}
+#[cfg(feature = "solana_mode")]
+#[derive(Debug, Clone, Deserialize, JsonSchema)]
+pub struct Credentials {
+    pub user_addr: SolAddr,
     pub signature: String,
     pub next: Option<String>,
 }
@@ -101,7 +110,7 @@ impl AuthnBackend for AuthBackend {
     type Credentials = Credentials;
     type Error = AuthError;
 
-    #[cfg(not(feature = "eth_mode"))]
+    #[cfg(all(not(feature = "eth_mode"), not(feature = "solana_mode")))]
     async fn authenticate(
         &self,
         creds: Self::Credentials,
@@ -162,6 +171,48 @@ impl AuthnBackend for AuthBackend {
             Err(e) => Err(e.into()),
         }
     }
+    #[cfg(feature = "solana_mode")]
+    async fn authenticate(
+        &self,
+        creds: Self::Credentials,
+    ) -> Result<Option<Self::User>, Self::Error> {
+        use crate::db_models::user::NewUser;
+        use diesel::OptionalExtension;
+        use std::str::FromStr;
+        use std::time::SystemTime;
+        let signature = Signature::from_str(&creds.signature)?;
+        let user_addr = creds.user_addr.0;
+        let is_validate = signature.verify(LOGIN_MESSAGE.as_ref(), user_addr.as_ref());
+        if !is_validate {
+            return Err(AuthError(AppError::new("wrong signature".to_owned())));
+        }
+
+        match users
+            .filter(username.eq(user_addr.to_string()))
+            .select(User::as_select())
+            .first(&mut self.db.get()?)
+            .optional()
+        {
+            Ok(Some(user)) => Ok(Some(user)),
+            Ok(None) => {
+                let user = diesel::insert_into(users)
+                    .values(NewUser {
+                        username: user_addr.to_string(),
+                        password: password_auth::generate_hash(creds.signature),
+                        group_id: COMMON_USER_ROLE,
+                        tenantry: DEFAULT_TENANTRY.to_string(),
+                        remark: None,
+                        create_time: SystemTime::now().into(),
+                        create_by: SUPER_USER,
+                        is_delete: false,
+                    })
+                    .returning(User::as_select())
+                    .get_result(&mut self.db.get()?)?;
+                Ok(Some(user))
+            }
+            Err(e) => Err(e.into()),
+        }
+    }
 
     async fn get_user(&self, user_id: &UserId<Self>) -> Result<Option<Self::User>, Self::Error> {
         match users
@@ -173,6 +224,18 @@ impl AuthnBackend for AuthBackend {
             Err(e) => Err(e.into()),
         }
     }
+}
+#[test]
+fn test1() {
+    use anchor_client::solana_sdk::signature::Keypair;
+    use anchor_client::solana_sdk::signer::Signer;
+
+    let keypair = Keypair::new();
+    let x = b"messagee";
+    // let result = Signature::from_str("asd").unwrap();
+    let signature = keypair.sign_message(x);
+    let x1 = signature.verify(keypair.pubkey().as_ref(), x);
+    println!("{}", x1);
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -219,7 +282,5 @@ impl AuthzBackend for AuthBackend {
 
 impl_from!(diesel::result::Error);
 impl_from!(r2d2::Error);
-#[cfg(feature = "eth_mode")]
-use alloy::primitives::SignatureError;
-#[cfg(feature = "eth_mode")]
-impl_from!(SignatureError);
+#[cfg(feature = "solana_mode")]
+impl_from!(anchor_client::solana_sdk::signature::ParseSignatureError);

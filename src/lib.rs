@@ -16,6 +16,7 @@ pub mod schema_view;
 pub mod utils;
 
 type AppRes<T> = Result<T, AppError>;
+pub const FILE_SERVER_DIRECTORY: &str = "/assets";
 
 pub fn set_env() {
     #[cfg(feature = "dev")]

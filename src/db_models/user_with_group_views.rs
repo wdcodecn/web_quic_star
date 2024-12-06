@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use derive_builder::ViewApiGen;
-use diesel::{AsChangeset, Queryable, QueryableByName, Selectable};
+use diesel::{AsChangeset, Queryable, Selectable};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 

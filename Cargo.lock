@@ -1287,6 +1287,7 @@ dependencies = [
  "matchit",
  "memchr",
  "mime",
+ "multer",
  "percent-encoding",
  "pin-project-lite",
  "rustversion",
@@ -3154,6 +3155,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "http-range-header"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9171a2ea8a68358193d15dd5d70c1c10a2afc3e7e4c5bc92bc9f025cebd7359c"
+
+[[package]]
 name = "httparse"
 version = "1.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3884,6 +3891,23 @@ dependencies = [
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "multer"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83e87776546dc87511aa5ee218730c92b666d7264ab6ed41f9d215af9cd5224b"
+dependencies = [
+ "bytes",
+ "encoding_rs",
+ "futures-util",
+ "http 1.1.0",
+ "httparse",
+ "memchr",
+ "mime",
+ "spin",
+ "version_check",
 ]
 
 [[package]]
@@ -7526,7 +7550,14 @@ dependencies = [
  "http 1.1.0",
  "http-body 1.0.1",
  "http-body-util",
+ "http-range-header",
+ "httpdate",
+ "mime",
+ "mime_guess",
+ "percent-encoding",
  "pin-project-lite",
+ "tokio",
+ "tokio-util",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -8040,7 +8071,6 @@ dependencies = [
  "anchor-client",
  "async-trait",
  "axum",
- "axum-extra",
  "axum-login",
  "axum-macros",
  "bigdecimal",
@@ -8062,9 +8092,10 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_path_to_error",
- "solana-sdk",
+ "sha2 0.10.8",
  "tokio",
  "tokio-cron-scheduler",
+ "tokio-util",
  "tower-http",
  "tracing",
  "tracing-subscriber",
