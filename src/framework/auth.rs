@@ -8,7 +8,6 @@ use crate::schema::groups::table as groups;
 use crate::schema::groups_permissions::{group_id, permission_id, table as groups_permissions};
 use crate::schema::permissions::table as permissions;
 use crate::schema::users::{table as users, username};
-use anchor_client::solana_sdk::signature::Signature;
 use async_trait::async_trait;
 use axum_login::tower_sessions::cookie::time::Duration;
 use axum_login::tower_sessions::{Expiry, MemoryStore, SessionManagerLayer};
@@ -180,7 +179,8 @@ impl AuthnBackend for AuthBackend {
         use diesel::OptionalExtension;
         use std::str::FromStr;
         use std::time::SystemTime;
-        let signature = Signature::from_str(&creds.signature)?;
+        let signature =
+            anchor_client::solana_sdk::signature::Signature::from_str(&creds.signature)?;
         let user_addr = creds.user_addr.0;
         let is_validate = signature.verify(LOGIN_MESSAGE.as_ref(), user_addr.as_ref());
         if !is_validate {

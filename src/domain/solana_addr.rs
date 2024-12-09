@@ -4,6 +4,7 @@ use schemars::gen::SchemaGenerator;
 use schemars::schema::{InstanceType, Schema, SchemaObject};
 use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::fmt::Display;
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
 
@@ -18,6 +19,13 @@ impl From<Pubkey> for SolAddr {
         SolAddr(value)
     }
 }
+
+impl Display for SolAddr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 impl Serialize for SolAddr {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(&self.0.to_string())

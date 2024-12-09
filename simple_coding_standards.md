@@ -8,3 +8,4 @@
 7. 尽量使用result,而不是panic, test 
 8. 小心使用let _ = , 这会立即drop , let _x = 会正常drop
 9. 减少所有if 与 for 嵌套
+10. 尽量不增加feature

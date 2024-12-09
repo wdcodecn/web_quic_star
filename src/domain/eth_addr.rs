@@ -17,6 +17,12 @@ impl From<Address> for EthAddr {
     }
 }
 
+impl std::fmt::Display for EthAddr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 impl Serialize for EthAddr {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(&self.0.to_string())
@@ -29,7 +35,6 @@ impl<'de> Deserialize<'de> for EthAddr {
         D: Deserializer<'de>,
     {
         use serde::de::Error;
-        use std::str::FromStr;
         String::deserialize(deserializer)
             .and_then(|string| {
                 Address::from_str(&string).map_err(|err| {
