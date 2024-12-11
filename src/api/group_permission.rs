@@ -10,6 +10,8 @@ use serde::{Deserialize, Serialize};
 
 #[allow(clippy::all)]
 #[derive(Deserialize, Serialize, JsonSchema, Default, Clone)]
+/// example:{group_id: 1,permission_id: 1}
+
 pub struct GroupsPermissionBuilder {
     pub group_id: ::derive_builder::export::core::option::Option<Filter<i64>>,
     pub permission_id: ::derive_builder::export::core::option::Option<Filter<i64>>,

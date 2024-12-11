@@ -1,7 +1,6 @@
 use crate::db_models::permission::Permission;
 use crate::db_models::user::User;
 use crate::db_models::ConnPool;
-use crate::domain::solana_addr::SolAddr;
 use crate::framework::api_doc::errors::AppError;
 use crate::impl_from;
 use crate::schema::groups::table as groups;
@@ -66,7 +65,7 @@ pub struct Credentials {
 #[cfg(feature = "solana_mode")]
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct Credentials {
-    pub user_addr: SolAddr,
+    pub user_addr: crate::domain::solana_addr::SolAddr,
     pub signature: String,
     pub next: Option<String>,
 }

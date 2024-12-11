@@ -1,6 +1,3 @@
-#![feature(backtrace_frames)]
-#![feature(negative_impls)]
-
 use framework::api_doc::errors::AppError;
 use std::panic;
 use tracing::error;

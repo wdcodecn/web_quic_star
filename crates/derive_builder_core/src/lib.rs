@@ -17,7 +17,7 @@
 
 // #![deny(warnings, missing_docs)]
 #![cfg_attr(test, recursion_limit = "100")]
-#![feature(let_chains)]
+// #![feature(let_chains)]
 #[macro_use]
 extern crate darling;
 extern crate proc_macro;
@@ -515,23 +515,22 @@ where
                 // insert underscore if acronym at beginning
                 // ABc -> a_bc
 
-                if let Some((false, c3)) = n3
-                    && let Some((false, c2)) = n2
-                    && n1.0
-                    && c3.is_uppercase()
-                    && c2.is_uppercase()
-                {
-                    buffer.push('_');
+                if let Some((false, c3)) = n3 {
+                    if let Some((false, c2)) = n2 {
+                        if n1.0 && c3.is_uppercase() && c2.is_uppercase() {
+                            buffer.push('_');
+                        }
+                    }
                 }
 
                 buffer.push_str(&prev_n1.1.to_lowercase().to_string());
 
                 // insert underscore before next word
                 // abC -> ab_c
-                if let Some((true, _)) = n2
-                    && n1.1.is_uppercase()
-                {
-                    buffer.push('_');
+                if let Some((true, _)) = n2 {
+                    if n1.1.is_uppercase() {
+                        buffer.push('_');
+                    }
                 }
             }
 

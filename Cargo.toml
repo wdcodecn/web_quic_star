@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["dev", "solana_mode", "postgres"]
+default = ["dev", "postgres"]
 eth_mode = ["dep:alloy"]
 solana_mode = ["dep:anchor-client"]
 dev = []
@@ -15,16 +15,16 @@ postgres = ["diesel/postgres", "diesel-dynamic-schema/postgres"]
 axum = { version = "^0.7.0", features = ["macros"] }
 axum-macros = "0.4.2"
 axum-login = { path = "crates/axum-login" }
-aide = { version = "0.13.4", features = ["redoc", "scalar", "axum", "axum-extra", "macros", "axum-headers","axum-multipart"] }
+aide = { version = "0.13.4", features = ["redoc", "scalar", "axum", "axum-extra", "macros", "axum-headers", "axum-multipart"] }
 tokio = { version = "1.40.0", features = ["full"] }
-tracing-subscriber = { version = "0.3.18" ,features = ["env-filter"]}
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 tracing = "0.1.40"
 schemars = { version = "0.8.21", features = ["uuid1", "chrono", "bigdecimal04"] }
 password-auth = "1.0.0"
 uuid = { version = "1.11.0", features = ["serde", "v4"] }
 serde = { version = "1.0.214", features = ["derive", "rc"] }
 serde_json = "1.0.132"
-tower-http = { version = "0.6.2", features = ["catch-panic", "cors", "trace","fs"] }
+tower-http = { version = "0.6.2", features = ["catch-panic", "cors", "trace", "fs"] }
 
 diesel = { version = "2.2.4", features = ["extras", ] }
 diesel-dynamic-schema = { version = "0.2.2", features = [] }
