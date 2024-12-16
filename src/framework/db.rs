@@ -6,7 +6,6 @@ use diesel::sql_types::BigInt;
 use diesel::{QueryId, QueryResult, QueryableByName, RunQueryDsl};
 use r2d2::Pool;
 use std::env;
-
 #[derive(QueryableByName)]
 pub struct Count {
     #[sql_type = "diesel::sql_types::BigInt"]
@@ -138,3 +137,5 @@ async fn test() {
 
     println!("{:?}", x);
 }
+
+pub fn update_by_id() {}

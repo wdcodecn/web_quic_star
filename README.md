@@ -25,7 +25,6 @@ example: [mod.rs](src%2Fscheduled_task%2Fmod.rs)
 
 
 # Prerequisite
-rustup default nightly
 
 sudo apt install build-essential
 

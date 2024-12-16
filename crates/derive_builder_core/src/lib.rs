@@ -128,6 +128,8 @@ pub fn web_api_builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenSt
         use crate::framework::api::Filter;
         use axum_login::permission_required;
         use crate::db_models::ConnPool;
+        use diesel::PgSortExpressionMethods;
+
         pub fn web_routes(conn_pool: ConnPool) -> ApiRouter {
             let (router_add, router_read, router_update, router_delete) = web::get_routers();
 
@@ -264,14 +266,14 @@ pub fn web_api_builder_for_struct(ast: syn::DeriveInput) -> proc_macro2::TokenSt
                 let order_column = x_table.column::<diesel::sql_types::Text, _>(page.order_column.clone());
                 let res = if page.is_desc {
                     statement
-                        .order(order_column.desc())
+                        .order(order_column.desc().nulls_last())
                         .select(#model::as_select())
                         .logic_delete_query()
                         .paginate(page.page_no, page.page_size)
                         .load_and_count_pages(&mut connection)?
                 } else {
                     statement
-                        .order(order_column.asc())
+                        .order(order_column.asc().nulls_last())
                         .select(#model::as_select())
                         .logic_delete_query()
                         .paginate(page.page_no, page.page_size)

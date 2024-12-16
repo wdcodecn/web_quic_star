@@ -1,5 +1,8 @@
 use framework::api_doc::errors::AppError;
+use std::collections::HashMap;
 use std::panic;
+use std::sync::{Arc, LazyLock};
+use tokio::sync::RwLock;
 use tracing::error;
 use tracing_subscriber::EnvFilter;
 
@@ -14,6 +17,7 @@ pub mod utils;
 
 type AppRes<T> = Result<T, AppError>;
 pub const FILE_SERVER_DIRECTORY: &str = "/assets";
+pub type Cache<K, V> = LazyLock<Arc<RwLock<HashMap<K, V>>>>;
 
 pub fn set_env() {
     #[cfg(feature = "dev")]

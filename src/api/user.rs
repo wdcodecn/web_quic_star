@@ -4,7 +4,7 @@ use crate::AppRes;
 use aide::OperationIo;
 use axum::extract::State;
 use axum_login::{login_required, AuthSession};
-use diesel::RunQueryDsl;
+use diesel::{QueryDsl, RunQueryDsl};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -38,7 +38,9 @@ pub(crate) async fn modify_password(
             password_auth::verify_password(modify_password.old_password, &user.password)?;
             let hash = password_auth::generate_hash(modify_password.new_password);
             user.password = hash;
-            diesel::update(users).set(user).execute(&mut pool.get()?)?;
+            diesel::update(users.find(user.id))
+                .set(user)
+                .execute(&mut pool.get()?)?;
         }
     }
 
