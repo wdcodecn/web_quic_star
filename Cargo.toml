@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["dev", "postgres"]
+default = ["dev", "postgres","eth_mode"]
 eth_mode = ["dep:alloy"]
 solana_mode = ["dep:anchor-client"]
 dev = []
@@ -38,7 +38,7 @@ diesel-enum = { version = "0.2.1", features = [] }
 
 
 dotenvy = "0.15.7"
-alloy = { version = "0.6.2", features = ["full"], optional = true }
+alloy = { version = "0.8", features = ["full"], optional = true }
 reqwest = { version = "0.12.9", features = ["json"] }
 futures = "0.3.31"
 tokio-cron-scheduler = { version = "0.13.0", features = [] }

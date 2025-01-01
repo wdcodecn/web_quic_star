@@ -137,8 +137,12 @@ impl AuthnBackend for AuthBackend {
         use diesel::OptionalExtension;
         use std::str::FromStr;
         use std::time::SystemTime;
-        let signature = Signature::from_str(&creds.signature)?;
-        let recovered_addr = signature.recover_address_from_msg(LOGIN_MESSAGE)?;
+        let signature = Signature::from_str(&creds.signature)
+            .map_err(|e| AuthError(AppError::new(e.to_string())))?;
+
+        let recovered_addr = signature
+            .recover_address_from_msg(LOGIN_MESSAGE)
+            .map_err(|e| AuthError(AppError::new(e.to_string())))?;
         let user_addr = creds.user_addr.0;
 
         assert_eq!(recovered_addr, user_addr, "not equal ");
@@ -225,6 +229,7 @@ impl AuthnBackend for AuthBackend {
     }
 }
 #[test]
+#[cfg(feature = "solana_mode")]
 fn test1() {
     use anchor_client::solana_sdk::signature::Keypair;
     use anchor_client::solana_sdk::signer::Signer;
