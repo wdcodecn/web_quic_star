@@ -7,6 +7,7 @@ use crate::schema::groups::table as groups;
 use crate::schema::groups_permissions::{group_id, permission_id, table as groups_permissions};
 use crate::schema::permissions::table as permissions;
 use crate::schema::users::{table as users, username};
+use alloy::primitives::{PrimitiveSignature, SignatureError};
 use async_trait::async_trait;
 use axum_login::tower_sessions::cookie::time::Duration;
 use axum_login::tower_sessions::{Expiry, MemoryStore, SessionManagerLayer};
@@ -138,11 +139,11 @@ impl AuthnBackend for AuthBackend {
         use std::str::FromStr;
         use std::time::SystemTime;
         let signature = Signature::from_str(&creds.signature)
-            .map_err(|e| AuthError(AppError::new(e.to_string())))?;
+            .map_err(|e| AuthError(AppError::new(e.to_string()))).unwrap();
 
         let recovered_addr = signature
             .recover_address_from_msg(LOGIN_MESSAGE)
-            .map_err(|e| AuthError(AppError::new(e.to_string())))?;
+            .map_err(|e| AuthError(AppError::new(e.to_string()))).unwrap();
         let user_addr = creds.user_addr.0;
 
         assert_eq!(recovered_addr, user_addr, "not equal ");

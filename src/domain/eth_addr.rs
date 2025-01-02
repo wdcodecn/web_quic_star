@@ -1,12 +1,15 @@
-use std::fmt::Formatter;
 use aide::OperationIo;
 use alloy::primitives::Address;
 use schemars::gen::SchemaGenerator;
 use schemars::schema::{InstanceType, Schema, SchemaObject};
 use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::fmt::Formatter;
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
+
+// use serde_json::ser::Formatter;
+// use tracing_subscriber::fmt::Formatter;
 
 #[derive(OperationIo, Default, Debug, Clone, AsExpression, FromSqlRow, Hash, Eq, PartialEq)]
 #[diesel(sql_type = Text)]

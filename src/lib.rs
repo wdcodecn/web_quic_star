@@ -7,6 +7,8 @@ use tracing::error;
 use tracing_subscriber::EnvFilter;
 
 pub mod api;
+pub mod constant;
+pub mod contract;
 pub mod db_models;
 pub mod domain;
 pub mod framework;
@@ -14,6 +16,7 @@ pub mod scheduled_task;
 pub mod schema;
 pub mod schema_view;
 pub mod utils;
+pub use contract::*;
 
 type AppRes<T> = Result<T, AppError>;
 pub const FILE_SERVER_DIRECTORY: &str = "/assets";

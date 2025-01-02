@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["dev", "postgres","eth_mode"]
+default = ["dev", "postgres", "eth_mode"]
 eth_mode = ["dep:alloy"]
 solana_mode = ["dep:anchor-client"]
 dev = []
@@ -36,7 +36,6 @@ chrono = { version = "0.4.38", features = ["serde"] }
 diesel-enum = { version = "0.2.1", features = [] }
 
 
-
 dotenvy = "0.15.7"
 alloy = { version = "0.8", features = ["full"], optional = true }
 reqwest = { version = "0.12.9", features = ["json"] }
@@ -53,6 +52,8 @@ derive_more = { version = "1.0.0", features = ["default", "error", "display"] }
 anchor-client = { path = "crates/anchor/client", optional = true }
 tokio-util = "0.7.12"
 sha2 = "0.10.8"
+eyre = "0.6.12"
+futures-util = "0.3.31"
 
 [build-dependencies]
 
