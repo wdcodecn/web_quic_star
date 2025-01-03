@@ -42,7 +42,7 @@ pub fn set_log() {
     tracing_subscriber::fmt()
         .pretty()
         .with_env_filter(EnvFilter::from_default_env())
-        .with_max_level(tracing::Level::INFO)
+        .with_max_level(tracing::Level::TRACE)
         .event_format(
             tracing_subscriber::fmt::format()
                 // .with_file(true)

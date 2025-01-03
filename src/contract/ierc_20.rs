@@ -13,7 +13,7 @@ sol!(
     #[allow(missing_docs)]
     #[sol(rpc)]
     UNI_PAIR_V2,
-    "src/contract/ierc20.json"
+    "src/contract/ierc_20.json"
 );
 
 // pub async fn get_pair(token_a: Address, token_b: Address) -> Address {

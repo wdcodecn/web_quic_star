@@ -51,18 +51,18 @@ async fn main() -> Result<()> {
     // .event("Transfer(address,address,uint256)")
 
     // 钱包地址 0xf3de3c0d654fda23dad170f0f320a92172509127
-    let t1 = "0x000000000000000000000000e592427a0aece92de3edee1f18e0157c05861564"
+    let t1 = "0x0000000000000000000000003fc91a3afd70395cd496c647d5a6cc9d4b2b7fad"
         .parse::<B256>()
         .unwrap();
 
     // 钱包地址 0xf92b7baee951053558499fb281a65573dd667626
-    let t2 = "0x000000000000000000000000e7742597b205cd9788af0cdab22d0ae23b988e06"
+    let t2 = "0x0000000000000000000000003fc91a3afd70395cd496c647d5a6cc9d4b2b7fad"
         .parse::<B256>()
         .unwrap();
     let filter = Filter::new()
         .event_signature(transfer_event_signature)
-        .topic1(t1)
-        .topic2(t2)
+        .topic1(t1).topic2(t2)
+        // .topic2(t2)
         .from_block(latest_block);
     let logs = provider.get_logs(&filter).await?;
 
