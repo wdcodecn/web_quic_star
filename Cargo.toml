@@ -38,7 +38,7 @@ diesel-enum = { version = "0.2.1", features = [] }
 
 dotenvy = "0.15.7"
 alloy = { version = "0.8", features = ["full"], optional = true }
-reqwest = { version = "0.12.9", features = ["json"] }
+reqwest = { version = "0.12.9", features = ["json", "rustls-tls"] }
 futures = "0.3.31"
 tokio-cron-scheduler = { version = "0.13.0", features = [] }
 derive_builder = { path = "crates/derive_builder" }

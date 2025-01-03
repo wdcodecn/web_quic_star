@@ -3,6 +3,8 @@ pub mod group_permission;
 pub mod permission;
 pub mod user;
 pub mod user_with_group_views;
+pub mod dex_gram;
+pub mod dex_gram_new;
 
 #[cfg(feature = "postgres")]
 pub type DbType = diesel::pg::Pg;

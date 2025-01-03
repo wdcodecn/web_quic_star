@@ -16,6 +16,9 @@ pub mod scheduled_task;
 pub mod schema;
 pub mod schema_view;
 pub mod utils;
+pub mod subscribe;
+pub mod service;
+
 pub use contract::*;
 
 type AppRes<T> = Result<T, AppError>;

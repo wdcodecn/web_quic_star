@@ -1,6 +1,7 @@
 use std::env;
 
 use aide::axum::ApiRouter;
+use alloy_chains::Chain;
 use http::{HeaderValue, Method};
 use tower_http::cors::CorsLayer;
 use tower_http::services::ServeDir;
@@ -11,6 +12,9 @@ use web_quick::framework::auth::get_auth_layer;
 use web_quick::framework::db::setup_connection_pool;
 use web_quick::scheduled_task::set_scheduler;
 use web_quick::{set_env, FILE_SERVER_DIRECTORY};
+use web_quick::subscribe::transaction::{subscribe_uniswap_v2_transaction, subscribe_uniswap_v3_transaction};
+use web_quick::utils::subscribe::{subscribe_with_retry, subscribe_with_retry_with_chain};
+
 #[tokio::main]
 async fn main() {
     web_quick::set_log();
@@ -55,6 +59,42 @@ async fn main() {
                 .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE]),
         )
         .layer(get_auth_layer(connection_pool.clone()));
+
+
+
+    tokio::spawn(subscribe_with_retry_with_chain(
+        connection_pool.clone(),
+        Chain::mainnet(),
+        subscribe_uniswap_v2_transaction,
+    ));
+    tokio::spawn(subscribe_with_retry_with_chain(
+        connection_pool.clone(),
+        Chain::mainnet(),
+        subscribe_uniswap_v3_transaction,
+    ));
+
+    tokio::spawn(subscribe_with_retry_with_chain(
+        connection_pool.clone(),
+        Chain::bsc_mainnet(),
+        subscribe_uniswap_v2_transaction,
+    ));
+    tokio::spawn(subscribe_with_retry_with_chain(
+        connection_pool.clone(),
+        Chain::bsc_mainnet(),
+        subscribe_uniswap_v3_transaction,
+    ));
+
+    tokio::spawn(subscribe_with_retry_with_chain(
+        connection_pool.clone(),
+        Chain::base_mainnet(),
+        subscribe_uniswap_v2_transaction,
+    ));
+    tokio::spawn(subscribe_with_retry_with_chain(
+        connection_pool.clone(),
+        Chain::base_mainnet(),
+        subscribe_uniswap_v3_transaction,
+    ));
+
 
     let doc_app = set_api_doc(app);
     let server_port = env::var("SERVER_PORT").unwrap_or("5090".to_string());

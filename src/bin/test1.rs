@@ -1,12 +1,18 @@
+use alloy::rpc::types::Log;
+use alloy::sol_types::SolEvent;
 use alloy_chains::{Chain, ChainKind, NamedChain};
-use alloy_primitives::Address;
+use alloy_primitives::bytes::Bytes;
+use alloy_primitives::{Address, LogData, B256};
 use chrono::{Duration, Utc};
 use foundry_block_explorers::account::{AccountBalance, NormalTransaction, Sort, TxListParams};
 use foundry_block_explorers::blocks::BlockNumberByTimestamp;
 use foundry_block_explorers::Client;
+use reqwest::Url;
 use serde::de::Error;
+use std::str::FromStr;
 use web_quick::constant::{BASESCAN_API_KEY, BSCSCAN_API_KEY, ETHERSCAN_API_KEY};
-use web_quick::set_env;
+use web_quick::UNI_PAIR_V3::Swap;
+use web_quick::{set_env, UNI_PAIR_V3};
 
 async fn eth() -> Option<AccountBalance> {
     let client = Client::new(Chain::mainnet(), ETHERSCAN_API_KEY).unwrap();
@@ -214,13 +220,76 @@ async fn test_get_logs() {
 
     let binding = pad_address(user_address).unwrap();
     let topic1 = binding.as_str();
-
+    println!("{:?}", topic1);
     let binding1 = pad_address(user_address).unwrap();
     let topic2 = binding1.as_str();
+    println!("{:?}", topic2);
 
     /// 获取logs
     let result = client
         .get_logs(21541017, 99999999, "", topic0, topic1, topic2)
-        .await ;
+        .await;
     println!("{:?}", result);
+    for log_entry in result.unwrap() {
+        let topics: Vec<B256> = log_entry
+            .topics
+            .iter()
+            .map(|x| x.parse::<B256>().unwrap())
+            .collect::<Vec<B256>>();
+
+        let logdata = LogData::new(
+            topics,
+            Bytes::from(log_entry.data.clone().into_bytes()).into(),
+        )
+        .unwrap();
+        let decoded: UNI_PAIR_V3::Swap =
+            UNI_PAIR_V3::Swap::decode_log_data(&logdata, false).unwrap();
+        println!("pair address -> {:?}", log_entry.address);
+        println!("sender -> {:?}", decoded.sender);
+        println!("recipient -> {:?}", decoded.recipient);
+        println!("amount0 -> {:?}", decoded.amount0);
+        println!("amount1 -> {:?}", decoded.amount1);
+        println!("liquidity -> {:?}", decoded.liquidity);
+        println!("sqrtPriceX96 -> {:?}", decoded.sqrtPriceX96);
+
+        // 根据pair 获取 token0 token1
+        // let pair_address = pad_address(log_entry.address.as_str()).unwrap();
+        let pair_address =  log_entry.address.as_str();
+
+        let url = Url::from_str(std::env::var("ETH_RPC").expect(".env ETH_RPC").as_str()).unwrap();
+
+        let provider = alloy::providers::ProviderBuilder::new()
+            .with_recommended_fillers()
+            .on_http(url);
+
+        println!("pair_address -> {:?}", pair_address);
+
+        let pair_address = Address::from_str(pair_address).unwrap();
+
+        println!("pair_address -> {:?}", pair_address);
+
+        let uni_pair_v3 =
+            UNI_PAIR_V3::new(pair_address, provider);
+        let token0 = uni_pair_v3.token0().call().await.unwrap();
+        let token1 = uni_pair_v3.token1().call().await.unwrap();
+        println!("token0 -> {:?}", token0._0.to_string());
+        println!("token1 -> {:?}", token1._0.to_string());
+
+        // if decoded.sender.to_string().eq(user_address) {
+        //     // 卖出代币
+        // }
+        // if decoded.sender.to_string().eq(user_address) {
+        //     // 卖出代币
+        // }
+    }
+    // Ok(Log {
+    //     inner: decoded,
+    //     block_hash: self.block_hash,
+    //     block_number: self.block_number,
+    //     block_timestamp: self.block_timestamp,
+    //     transaction_hash: self.transaction_hash,
+    //     transaction_index: self.transaction_index,
+    //     log_index: self.log_index,
+    //     removed: self.removed,
+    // })
 }

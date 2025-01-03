@@ -1,0 +1,23 @@
+{
+  "name": "web_quic_star",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "eth": "anvil --fork-url https://eth-mainnet.g.alchemy.com/v2/CqvAtyFL5aIZrnuZ5jVOUZWodarasP5S",
+    "bsc": "anvil --fork-url https://bnb-mainnet.g.alchemy.com/v2/CqvAtyFL5aIZrnuZ5jVOUZWodarasP5S",
+    "base": "anvil --fork-url https://base-mainnet.g.alchemy.com/v2/CqvAtyFL5aIZrnuZ5jVOUZWodarasP5S"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.0",
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.0.0",
+    "chai": "^4.3.4",
+    "mocha": "^9.0.3",
+    "prettier": "^2.6.2",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^4.3.5"
+  }
+}
